@@ -904,9 +904,16 @@
       document.getElementById('stateEvaluasiSelesai').classList.remove('hidden');
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
-      errBox.textContent = '❌ ' + (body.message || 'Gagal mengirim evaluasi.');
-      errBox.classList.remove('hidden');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      if (['belum_absen', 'belum_jam', 'kadaluarsa'].includes(body.kode)) {
+        document.getElementById('stateEvaluasi').classList.add('hidden');
+        document.getElementById('stateKonfirmasi').classList.remove('hidden');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        alert('❌ ' + body.message);
+      } else {
+        errBox.textContent = '❌ ' + (body.message || 'Gagal mengirim evaluasi.');
+        errBox.classList.remove('hidden');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
     }
   }
 
