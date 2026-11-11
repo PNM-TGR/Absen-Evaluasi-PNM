@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#07579f">
+<title>Absen Tes Lapangan PNM</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  :root {
+    --primary: #07579f; --primary-dark: #06477f; --primary-light: #eaf4ff;
+    --green: #00a56a; --green-light: #e6f8f0;
+    --red: #e53935; --red-light: #ffebed;
+    --orange: #f59e0b; --orange-light: #fff5df;
+    --text: #26364a; --muted: #718096; --border: #e5eaf0; --bg: #f5f8fb;
+  }
+  html, body {
+    width: 100%; min-height: 100vh;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    background: var(--bg); color: var(--text); font-size: 15px;
+    -webkit-font-smoothing: antialiased;
+  }
+  .app { max-width: 520px; margin: 0 auto; padding-bottom: 30px; min-height: 100vh; }
+  .header {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: white; padding: 22px 20px 24px; text-align: center;
+    border-radius: 0 0 20px 20px; box-shadow: 0 4px 12px rgba(7,87,159,0.15);
+  }
+  .header-logo {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 56px; height: 56px; background: rgba(255,255,255,0.18);
+    border-radius: 16px; font-weight: 900; font-size: 18px; margin-bottom: 12px;
+  }
+  .header h1 { font-size: 20px; font-weight: 800; margin-bottom: 4px; line-height: 1.2; }
+  .header p { font-size: 12px; opacity: 0.85; font-weight: 500; }
+  .header-info { display: flex; justify-content: center; gap: 16px; margin-top: 14px; font-size: 11.5px; opacity: 0.9; }
+  .container { padding: 20px 16px 0; }
+  .card { background: white; border-radius: 16px; padding: 18px; box-shadow: 0 2px 8px rgba(32,59,93,0.06); margin-bottom: 16px; }
+  .search-label { font-size: 12px; font-weight: 800; color: #3d526b; margin-bottom: 8px; letter-spacing: 0.3px; display: block; }
+  .search-input, .wa-input {
+    width: 100%; height: 52px; border: 2px solid var(--border); border-radius: 14px;
+    padding: 0 16px; font-size: 15px; font-family: inherit; color: var(--text);
+    outline: none; background: #f8fafc; transition: 0.15s;
+  }
+  .search-input:focus, .wa-input:focus { border-color: var(--primary); background: white; }
+  .wa-input { font-size: 16px; letter-spacing: 0.5px; }
+  .search-hint { margin-top: 10px; padding: 10px 12px; background: var(--primary-light); border-radius: 10px; font-size: 11.5px; color: var(--primary-dark); line-height: 1.5; }
+  .sugest-list { margin-top: 12px; max-height: 420px; overflow-y: auto; }
+  .sugest-item {
+    padding: 14px 16px; border: 1.5px solid var(--border); border-radius: 14px;
+    margin-bottom: 10px; cursor: pointer; background: white; transition: 0.15s;
+    display: flex; align-items: flex-start; gap: 12px;
+  }
+  .sugest-item:hover, .sugest-item:active { border-color: var(--primary); background: var(--primary-light); transform: translateY(-1px); }
+  .sugest-avatar {
+    flex-shrink: 0; width: 42px; height: 42px;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: white; border-radius: 12px; display: flex; align-items: center; justify-content: center;
+    font-size: 18px; font-weight: 800;
+  }
+  .sugest-body { flex: 1; min-width: 0; }
+  .sugest-nama { font-size: 15px; font-weight: 800; color: #24476c; margin-bottom: 4px; line-height: 1.3; }
+  .sugest-unit { font-size: 12.5px; color: #5d7088; margin-bottom: 4px; }
+  .sugest-periode { font-size: 11.5px; color: var(--primary); font-weight: 700; }
+  .sugest-hint { padding: 12px; background: #f8fafc; border-radius: 12px; font-size: 12px; color: #7b8da4; text-align: center; line-height: 1.5; }
+  .loading-box { padding: 40px 20px; text-align: center; color: var(--muted); font-size: 13px; }
+  .spinner { display: inline-block; width: 28px; height: 28px; border: 3px solid #dbe6f0; border-top-color: var(--primary); border-radius: 50%; animation: spin 0.7s linear infinite; margin-bottom: 12px; }
+  .spinner-sm { width: 14px; height: 14px; border-width: 2px; margin: 0 6px 0 0; vertical-align: middle; display: inline-block; border: 2px solid #dbe6f0; border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .konfirmasi-header { text-align: center; padding: 10px 0 16px; border-bottom: 1px dashed var(--border); margin-bottom: 16px; }
+  .konfirmasi-icon { width: 60px; height: 60px; background: var(--primary-light); color: var(--primary); border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 28px; margin-bottom: 10px; }
+  .konfirmasi-title { font-size: 16px; font-weight: 800; color: #24476c; }
+  .info-row { display: flex; padding: 8px 0; font-size: 13.5px; line-height: 1.5; }
+  .info-label { flex-shrink: 0; width: 100px; color: #7b8da4; font-weight: 600; }
+  .info-value { flex: 1; color: #24476c; font-weight: 700; word-break: break-word; }
+  .info-value.highlight { color: var(--primary); font-weight: 800; }
+  .jenis-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+  .jenis-btn { padding: 14px 8px; border: 2px solid var(--border); border-radius: 12px; background: white; cursor: pointer; font-family: inherit; transition: 0.15s; text-align: center; }
+  .jenis-btn .jenis-icon { font-size: 22px; display: block; margin-bottom: 4px; }
+  .jenis-btn .jenis-text { font-size: 12px; font-weight: 800; color: #5d7088; }
+  .jenis-btn.hadir.active { border-color: var(--green); background: var(--green-light); }
+  .jenis-btn.hadir.active .jenis-text { color: var(--green); }
+  .jenis-btn.izin.active { border-color: var(--orange); background: var(--orange-light); }
+  .jenis-btn.izin.active .jenis-text { color: var(--orange); }
+  .jenis-btn.sakit.active { border-color: var(--red); background: var(--red-light); }
+  .jenis-btn.sakit.active .jenis-text { color: var(--red); }
+  .keterangan-box { margin-top: 12px; display: none; }
+  .keterangan-box.show { display: block; }
+  .keterangan-box textarea { width: 100%; min-height: 80px; border: 1.5px solid var(--border); border-radius: 12px; padding: 12px 14px; font-size: 13.5px; font-family: inherit; color: var(--text); outline: none; resize: vertical; background: #f8fafc; line-height: 1.5; }
+  .keterangan-box textarea:focus { border-color: var(--primary); background: white; }
+  .wa-hint { font-size: 11px; color: #97a8ba; margin-top: 6px; line-height: 1.4; }
+  .btn { width: 100%; height: 54px; border: none; border-radius: 14px; font-size: 15px; font-weight: 800; cursor: pointer; font-family: inherit; transition: 0.15s; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 14px; }
+  .btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; box-shadow: 0 4px 12px rgba(7,87,159,0.25); }
+  .btn-primary:active { transform: scale(0.98); }
+  .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+  .btn-secondary { background: #edf0f3; color: #596a7e; height: 48px; font-size: 14px; }
+  .btn-wa { background: #25D366; color: white; height: 50px; font-size: 14.5px; box-shadow: 0 4px 12px rgba(37,211,102,0.25); }
+  .hasil-card { background: white; border-radius: 16px; padding: 24px 18px; box-shadow: 0 2px 8px rgba(32,59,93,0.06); text-align: center; }
+  .hasil-icon { width: 78px; height: 78px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 40px; margin-bottom: 14px; }
+  .hasil-icon.sukses { background: var(--green-light); color: var(--green); }
+  .hasil-icon.peringatan { background: var(--orange-light); color: var(--orange); }
+  .hasil-icon.tolak { background: var(--red-light); color: var(--red); }
+  .hasil-judul { font-size: 18px; font-weight: 850; color: #24476c; margin-bottom: 10px; line-height: 1.3; }
+  .hasil-pesan { font-size: 14px; color: #5d7088; line-height: 1.7; margin-bottom: 18px; }
+  .hasil-pesan b { color: #24476c; }
+  .h-badge-wrap { display: flex; justify-content: center; gap: 8px; margin: 16px 0; }
+  .h-badge { padding: 8px 14px; border-radius: 12px; font-size: 13px; font-weight: 800; border: 2px solid var(--border); background: #f8fafc; color: #97a8ba; min-width: 60px; text-align: center; }
+  .h-badge.aktif { background: var(--green-light); border-color: var(--green); color: var(--green); }
+  .warning-box { background: var(--orange-light); border: 1.5px solid #f5d78e; border-radius: 12px; padding: 14px; margin-bottom: 16px; text-align: left; font-size: 12.5px; color: #bd7900; line-height: 1.6; }
+  .warning-box b { color: #8a5800; }
+  .warning-box .wb-judul { font-weight: 850; margin-bottom: 6px; font-size: 13px; }
+  .warning-box .wb-btn { width: 100%; height: 44px; border: none; border-radius: 11px; margin-top: 12px; background: linear-gradient(135deg, #f59e0b, #d97706); color: white; font-size: 13px; font-weight: 800; cursor: pointer; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 6px; }
+  .info-box { background: var(--primary-light); border: 1.5px solid #a8caf0; border-radius: 12px; padding: 14px; margin-bottom: 16px; text-align: left; font-size: 12.5px; color: var(--primary-dark); line-height: 1.6; }
+  .data-box { background: #f8fafc; border-radius: 12px; padding: 12px 14px; margin: 14px 0; text-align: left; font-size: 12.5px; color: #5d7088; line-height: 1.8; }
+  .data-box .data-row { display: flex; gap: 8px; }
+  .data-box .data-label { flex-shrink: 0; min-width: 100px; color: #7b8da4; font-weight: 600; }
+  .data-box .data-value { flex: 1; color: #24476c; font-weight: 700; word-break: break-word; }
+  .berkas-box { background: #f8fafc; border-radius: 12px; padding: 14px; margin-bottom: 16px; text-align: left; }
+  .berkas-title { font-size: 12.5px; font-weight: 800; color: #24476c; margin-bottom: 10px; letter-spacing: 0.3px; }
+  .berkas-item { font-size: 12.5px; color: #5d7088; padding: 3px 0; line-height: 1.5; }
+  .berkas-link { display: inline-block; color: var(--primary); font-weight: 700; text-decoration: underline; font-size: 12px; margin-top: 8px; }
+  .hidden { display: none !important; }
+  .mt-3 { margin-top: 16px; }
+  .error-box { background: var(--red-light); border: 1.5px solid #f5c2c7; border-radius: 12px; padding: 14px; margin-bottom: 16px; font-size: 13px; color: var(--red); line-height: 1.6; }
+  .footer { text-align: center; padding: 24px 16px; font-size: 11px; color: #97a8ba; line-height: 1.6; }
+  .modal { position: fixed; inset: 0; background: rgba(20,37,55,0.55); z-index: 9999; display: none; align-items: center; justify-content: center; padding: 20px; }
+  .modal.show { display: flex; }
+  .modal-box { background: white; border-radius: 18px; padding: 26px 22px 20px; max-width: 380px; width: 100%; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.25); animation: modalPop 0.2s ease; }
+  @keyframes modalPop { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  .modal-icon { font-size: 48px; line-height: 1; margin-bottom: 14px; display: inline-block; }
+  .modal-judul { font-size: 17px; font-weight: 850; color: #24476c; margin-bottom: 10px; }
+  .modal-pesan { font-size: 13.5px; color: #5d7088; line-height: 1.6; margin-bottom: 22px; }
+  .modal-actions { display: flex; gap: 8px; }
+  .modal-btn { flex: 1; height: 46px; border: none; border-radius: 12px; font-size: 13.5px; font-weight: 800; cursor: pointer; font-family: inherit; }
+  .modal-btn.batal { background: #edf0f3; color: #596a7e; }
+  .modal-btn.oke { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; }
+  .penyemangat { border-radius: 18px; padding: 26px 22px; text-align: center; color: white; box-shadow: 0 6px 18px rgba(0,0,0,0.10); animation: fadeInUp 0.35s ease; margin-bottom: 20px; }
+  @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  .penyemangat .emoji { font-size: 56px; line-height: 1; margin-bottom: 14px; display: block; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.15)); }
+  .penyemangat .judul { font-size: 22px; font-weight: 850; line-height: 1.25; margin-bottom: 12px; }
+  .penyemangat .sub { font-size: 15px; line-height: 1.65; opacity: 0.95; font-weight: 500; }
+  .penyemangat.h1 { background: linear-gradient(135deg, #0865b5 0%, #0891b2 100%); }
+  .penyemangat.h2 { background: linear-gradient(135deg, #0891b2 0%, #00a56a 100%); }
+  .penyemangat.h3 { background: linear-gradient(135deg, #7c3aed 0%, #0865b5 100%); }
+  .penyemangat.selesai { background: linear-gradient(135deg, #00a56a 0%, #0d9488 100%); }
+  
+  /* CSS UNTUK PILIHAN TEKS (TANPA BOLA) */
+  .pilihan-box {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 15px;
+  }
+  .pilihan-item {
+    display: block;
+    padding: 12px 15px;
+    background: #f8fafc;
+    border: 1.5px solid #e5eaf0;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 13.5px;
+    color: #3d526b;
+    transition: 0.15s;
+    margin: 0;
+  }
+  .pilihan-item input[type="radio"] {
+    display: none;
+  }
+  .pilihan-item:has(input[type="radio"]:checked) {
+    background: #eaf4ff;
+    border-color: #07579f;
+    color: #07579f;
+    font-weight: 800;
+    box-shadow: 0 2px 6px rgba(7,87,159,0.1);
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="header">
+    <div class="header-logo">PNM</div>
+    <h1>Absen Tes Lapangan</h1>
+    <p>PNM Mekaar Cabang Tangerang</p>
+    <div class="header-info">
+      <span>📅 <b id="liveDate">—</b></span>
+      <span>⏰ <b id="liveClock">--:--</b></span>
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- ═══ STATE 1: SEARCH ═══ -->
+    <div id="stateSearch">
+      <div class="card">
+        <label class="search-label">🔍 Nama lengkap atau unit (min 2 huruf)</label>
+        <input type="text" id="inputSearch" class="search-input" placeholder="Ketik nama atau unit TL..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+        <div class="search-hint">ℹ️ Coba ketik lebih lengkap nama atau lokasi TL. Jika tidak ada, hubungi PIC Interview kamu.</div>
+        <div id="sugestBox" class="hidden">
+          <div id="sugestList" class="sugest-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ STATE 2: KONFIRMASI ═══ -->
+    <div id="stateKonfirmasi" class="hidden">
+      <div class="card">
+        <div class="konfirmasi-header">
+          <div class="konfirmasi-icon">✓</div>
+          <div class="konfirmasi-title">Konfirmasi Absen</div>
+        </div>
+        <div class="info-row"><div class="info-label">👤 Nama</div><div class="info-value" id="konfNama">—</div></div>
+        <div class="info-row"><div class="info-label">📅 Tgl Interview</div><div class="info-value" id="konfTglInterview">—</div></div>
+        <div class="info-row"><div class="info-label">📍 Unit TL</div><div class="info-value" id="konfUnit">—</div></div>
+        <div class="info-row"><div class="info-label">👤 PIC TL</div><div class="info-value" id="konfPic">—</div></div>
+        <div class="info-row"><div class="info-label">📅 Periode TL</div><div class="info-value highlight" id="konfPeriode">—</div></div>
+        <div class="info-row"><div class="info-label">📆 Hari ini</div><div class="info-value highlight" id="konfHari">—</div></div>
+
+        <label class="search-label" style="margin-top:16px;">📱 No WA Kamu (verifikasi):</label>
+        <input type="tel" id="inputWA" class="wa-input" placeholder="08xxxxxxxxxx" inputmode="numeric" autocomplete="off">
+        <div class="wa-hint">Masukkan No WA yang kamu daftarkan saat melamar</div>
+        <div id="konfError" class="error-box hidden mt-3"></div>
+
+        <button class="btn btn-primary" onclick="bukaModalJenis()" style="margin-top:18px;">🎯 ABSEN TES LAPANGAN</button>
+        <button class="btn btn-secondary" onclick="klikEvaluasiTL()" style="margin-top:10px;background:#fff;border:1.5px solid #07579f;color:#07579f;">📝 ISI EVALUASI TL</button>
+        <button class="btn btn-secondary" onclick="kembaliCari()" style="margin-top:10px;">← Ganti Pilihan</button>
+      </div>
+    </div>
+
+    <!-- ═══ STATE 3: HASIL ABSEN ═══ -->
+    <div id="stateHasil" class="hidden">
+      <div class="hasil-card">
+        <div id="hasilPenyemangat" class="hidden"></div>
+        <div class="hasil-icon" id="hasilIcon">✅</div>
+        <div class="hasil-judul" id="hasilJudul">—</div>
+        <div class="hasil-pesan" id="hasilPesan">—</div>
+        <div id="hasilHBadge" class="h-badge-wrap hidden">
+          <div class="h-badge" id="hBadgeH1">H1</div>
+          <div class="h-badge" id="hBadgeH2">H2</div>
+          <div class="h-badge" id="hBadgeH3">H3</div>
+        </div>
+        <div id="hasilWarning" class="warning-box hidden"></div>
+        <div id="hasilInfo" class="info-box hidden"></div>
+        <div id="hasilData" class="data-box hidden"></div>
+        <div id="hasilBerkas" class="berkas-box hidden">
+          <div class="berkas-title">📋 PENGINGAT BERKAS</div>
+          <div class="berkas-item">☐ KTP</div>
+          <div class="berkas-item">☐ KK</div>
+          <div class="berkas-item">☐ Ijazah / SKL</div>
+          <div class="berkas-item">☐ CV + Surat Lamaran</div>
+          <div class="berkas-item">☐ Form Lamaran Kerja</div>
+          <div class="berkas-item">☐ Surat Jaminan Orang Tua/Wali</div>
+          <div class="berkas-item">☐ Foto Keluarga</div>
+          <a class="berkas-link" href="https://drive.google.com/drive/folders/1-Kki3d6A0jSItJSEe-C8DDYTVge5SVBW" target="_blank">📄 Download Form Lamaran & Surat Jaminan →</a>
+        </div>
+        <button class="btn btn-wa hidden" id="btnChatPic" onclick="chatPicTL()">💬 Chat PIC TL</button>
+        <button class="btn btn-secondary" id="btnMulaiLagi" onclick="mulaiLagi()">← Absen Kandidat Lain</button>
+      </div>
+    </div>
+
+    <!-- ═══ STATE 4: FORM EVALUASI (Full Page) ═══ -->
+    <div id="stateEvaluasi" class="hidden">
+      <div class="card">
+        <div class="konfirmasi-header">
+          <div class="konfirmasi-icon">📝</div>
+          <div class="konfirmasi-title">Evaluasi TL</div>
+        </div>
+        
+        <!-- Auto-filled fields -->
+        <label class="search-label">Lokasi Kantor Tempat Pembekalan</label>
+        <input type="text" id="evalLokasi" class="search-input" style="height:40px; padding:0 10px; margin-bottom:10px; background:#eef3f8; color:#666;" readonly>
+
+        <div style="display:flex; gap:10px; margin-bottom:10px;">
+          <div style="flex:1;">
+            <label class="search-label">Jabatan/Posisi saat tes lapang</label>
+            <input type="text" id="evalPosisi" class="search-input" style="height:40px; padding:0 10px; background:#eef3f8; color:#666;" readonly>
+          </div>
+          <div style="flex:1;">
+            <label class="search-label">Tanggal Tes Lapang</label>
+            <input type="text" id="evalTgl" class="search-input" style="height:40px; padding:0 10px; background:#eef3f8; color:#666;" readonly>
+          </div>
+        </div>
+
+        <!-- Pilihan Teks (Tanpa Bola) -->
+        <label class="search-label">Hari ini kamu melaksanakan Tes Lapang hari ke berapa <span style="color:red">*</span></label>
+        <div class="pilihan-box">
+          <label class="pilihan-item"><input type="radio" name="evalHariKe" value="Hari Pertama" checked> Hari Pertama</label>
+          <label class="pilihan-item"><input type="radio" name="evalHariKe" value="Hari Kedua"> Hari Kedua</label>
+          <label class="pilihan-item"><input type="radio" name="evalHariKe" value="Hari Ketiga"> Hari Ketiga</label>
+        </div>
+
+        <label class="search-label">Siapa Nama Mentor/Pengajar yang menemani kamu tes lapangan hari ini? <span style="color:red">*</span></label>
+        <input type="text" id="evalNamaMentor" class="search-input" style="height:40px; padding:0 10px; margin-bottom:10px;" placeholder="Ketik nama mentor...">
+
+        <label class="search-label">Nomor Mentor/Pengajar (Contoh Format : 081212341234) <span style="color:red">*</span></label>
+        <input type="tel" id="evalNoMentor" class="search-input" style="height:40px; padding:0 10px; margin-bottom:10px;" placeholder="08xxxx">
+
+        <label class="search-label">Apa yang kamu pelajari di kegiatan Tes Lapang hari ini dengan mentor mu? <span style="color:red">*</span></label>
+        <textarea id="evalDipelajari" class="search-input" style="height:70px; padding:10px; margin-bottom:10px;" placeholder="Tulis apa yang dipelajari..."></textarea>
+
+        <label class="search-label">Kesan seperti apa yang kamu dapatkan dari tes lapangan hari ini? <span style="color:red">*</span></label>
+        <textarea id="evalKesan" class="search-input" style="height:70px; padding:10px; margin-bottom:10px;" placeholder="Tulis kesanmu..."></textarea>
+
+        <label class="search-label">Apakah kamu sudah yakin ingin bekerja di PNM Mekaar? <span style="color:red">*</span></label>
+        <div class="pilihan-box">
+          <label class="pilihan-item"><input type="radio" name="evalYakin" value="Masih ragu ragu"> Masih ragu ragu</label>
+          <label class="pilihan-item"><input type="radio" name="evalYakin" value="Sudah Yakin" checked> Sudah Yakin</label>
+        </div>
+
+        <label class="search-label">Apakah orang tua, keluarga, ataupun suami sudah setuju jika kamu bekerja di PNM sampai larut malam? <span style="color:red">*</span></label>
+        <div class="pilihan-box">
+          <label class="pilihan-item"><input type="radio" name="evalOrtu" value="Tidak Setuju"> Tidak Setuju</label>
+          <label class="pilihan-item"><input type="radio" name="evalOrtu" value="Masih ragu ragu"> Masih ragu ragu</label>
+          <label class="pilihan-item"><input type="radio" name="evalOrtu" value="Ya Setuju" checked> Ya Setuju</label>
+        </div>
+
+        <label class="search-label">Hari ini Pulang Tes Lapagan dari Kantor Unit Jam Berapa? (WIB) <span style="color:red">*</span></label>
+        <input type="time" id="evalJamPulang" class="search-input" style="height:40px; padding:0 10px; margin-bottom:10px; width: 100%;">
+
+        <label class="search-label">Adakah saran dan masukkan untuk kondisi lingkungan pertemanan kerja atau kondisi kantor yang ada di Unit PNM Mekaar yang sudah kamu ikuti ini? <span style="color:red">*</span></label>
+        <textarea id="evalSaran" class="search-input" style="height:70px; padding:10px; margin-bottom:10px;" placeholder="Tulis saran..."></textarea>
+
+        <label class="search-label">Apakah Kamu akan mengikuti tahapan berikutnya?</label>
+        <div class="pilihan-box">
+          <label class="pilihan-item"><input type="radio" name="evalIkut" value="Ya, saya masih menyanggupi" checked> Ya, saya masih menyanggupi</label>
+          <label class="pilihan-item"><input type="radio" name="evalIkut" value="Tidak, saya merasa tidak sanggup"> Tidak, saya merasa tidak sanggup</label>
+        </div>
+
+        <div id="modalEvalError" class="error-box hidden" style="margin-bottom:10px;"></div>
+
+        <button class="btn btn-primary" id="btnSubmitEval" onclick="submitEvaluasi()" style="margin-top:16px;">✓ Kirim Evaluasi</button>
+        <button class="btn btn-secondary" onclick="kembaliKeKonfirmasi()" style="margin-top:10px;">← Batal & Kembali</button>
+      </div>
+    </div>
+
+    <!-- ═══ STATE 5: EVALUASI SELESAI ═══ -->
+    <div id="stateEvaluasiSelesai" class="hidden">
+      <div class="hasil-card">
+        <div class="hasil-icon sukses">✅</div>
+        <div class="hasil-judul">Evaluasi Terkirim!</div>
+        <div class="hasil-pesan" style="margin-top:10px;">
+          Terima kasih sudah mengisi jurnal harian Tes Lapangan hari ini.<br><br>
+          Data kamu sudah masuk ke sistem.
+        </div>
+        <button class="btn btn-primary" onclick="mulaiLagi()" style="margin-top:20px;">← Kembali ke Awal</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Jenis Absen -->
+  <div class="modal" id="modalJenis">
+    <div class="modal-box">
+      <div class="modal-icon" style="font-size:36px;">📝</div>
+      <div class="modal-judul">Pilih Jenis Absen</div>
+      <div class="modal-pesan" style="margin-bottom:16px;font-size:13px;">Pilih status kamu hari ini:</div>
+      <div class="jenis-grid" style="margin-bottom:4px;">
+        <button type="button" class="jenis-btn hadir active" onclick="pilihJenis('hadir')"><span class="jenis-icon">✅</span><span class="jenis-text">HADIR</span></button>
+        <button type="button" class="jenis-btn izin" onclick="pilihJenis('izin')"><span class="jenis-icon">🟡</span><span class="jenis-text">IZIN</span></button>
+        <button type="button" class="jenis-btn sakit" onclick="pilihJenis('sakit')"><span class="jenis-icon">🔴</span><span class="jenis-text">SAKIT</span></button>
+      </div>
+      <div id="keteranganBox" class="keterangan-box" style="text-align:left;">
+        <label class="search-label" style="margin-top:14px;">Alasan (Keterangan):</label>
+        <textarea id="inputKeterangan" placeholder="Contoh: Sakit demam, izin ada acara keluarga, dll..."></textarea>
+      </div>
+      <div id="modalJenisError" class="error-box hidden" style="margin-top:12px;text-align:left;"></div>
+      <div class="modal-actions" style="margin-top:16px;">
+        <button class="modal-btn batal" onclick="tutupModalJenis()">Batal</button>
+        <button class="modal-btn oke" id="btnSubmitJenis" onclick="submitJenis()">✓ Konfirmasi</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    Sistem Absen TL — PNM Mekaar Cabang Tangerang<br>
+    Butuh bantuan? Hubungi PIC TL kamu.
+  </div>
+</div>
+
+<script>
+  const API_URL = 'https://script.google.com/macros/s/AKfycbxQk77blVXWVNMtamH5t-SNA97ixfACBeIzCeLcBtqntpiOmHqLtgLg8l9eEptOnDrCzg/exec';
+  const API_KEY = 'ABSEN-EVALUASI-TL-MMI-CABANG-TANGERANG';
+
+  let kandidatTerpilih = null;
+  let jenisTerpilih = 'hadir';
+  let searchTimer = null;
+  let hasilSearchTerakhir = [];
+  let flagEvalAktif = null;
+
+  function updateClock() {
+    const now = new Date();
+    const tgl = now.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+    const jam = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+    document.getElementById('liveDate').textContent = tgl;
+    document.getElementById('liveClock').textContent = jam;
+  }
+  updateClock();
+  setInterval(updateClock, 1000);
+
+  async function apiCall(action, data) {
+    try {
+      const res = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ apiKey: API_KEY, action: action, data: data || {} })
+      });
+      if (!res.ok) {
+        return { success: false, kode: 'http_' + res.status, message: 'HTTP ' + res.status };
+      }
+      return await res.json();
+    } catch (err) {
+      return { success: false, kode: 'network_error', message: 'Koneksi gagal: ' + (err.message || err) };
+    }
+  }
+
+  const inputSearch = document.getElementById('inputSearch');
+  const sugestBox = document.getElementById('sugestBox');
+  const sugestList = document.getElementById('sugestList');
+
+  inputSearch.addEventListener('input', function() {
+    const q = this.value.trim();
+    if (searchTimer) clearTimeout(searchTimer);
+    if (q.length < 2) {
+      sugestBox.classList.add('hidden');
+      return;
+    }
+    sugestBox.classList.remove('hidden');
+    sugestList.innerHTML = '<div class="loading-box"><div class="spinner"></div><div>Mencari...</div></div>';
+    searchTimer = setTimeout(function() { cariKandidat(q); }, 400);
+  });
+
+  inputSearch.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' || e.keyCode === 13) {
+      e.preventDefault();
+      this.blur();
+    }
+  });
+
+  async function cariKandidat(query) {
+    const body = await apiCall('search', { q: query });
+    if (!body.success) {
+      sugestList.innerHTML = '<div class="sugest-hint">❌ ' + escapeHtml(body.message || 'Gagal mencari') + '</div>';
+      return;
+    }
+    const data = body.data || {};
+    if (!data.kandidat || data.kandidat.length === 0) {
+      sugestList.innerHTML = '<div class="sugest-hint">❌ Nama tidak ditemukan.<br><br>Jika nama kamu tetap tidak muncul, hubungi PIC Interview yang memberikan pengumuman jadwal TL.</div>';
+      return;
+    }
+    renderSugest(data.kandidat, data.total, data.terpotong);
+  }
+
+  function renderSugest(list, total, terpotong) {
+    hasilSearchTerakhir = list;
+    let html = '';
+    list.forEach(function(k) {
+      const inisial = String(k.nama || '?').charAt(0).toUpperCase();
+      html += '<div class="sugest-item" onclick="pilihKandidat(' + k.row + ')">' +
+        '<div class="sugest-avatar">' + escapeHtml(inisial) + '</div>' +
+        '<div class="sugest-body">' +
+        '<div class="sugest-nama">' + escapeHtml(k.nama) + '</div>' +
+        '<div class="sugest-unit" style="color:#7b8da4;">📅 Interview: ' + escapeHtml(k.tglInterview || '-') + '</div>' +
+        '<div class="sugest-unit">📍 ' + escapeHtml(k.unitTL || '-') + '</div>' +
+        '<div class="sugest-periode">📅 TL: ' + escapeHtml(k.periodeTampil || '-') + '</div>' +
+        '</div></div>';
+    });
+    if (terpotong && total > list.length) {
+      html += '<div class="sugest-hint">📌 Ada ' + total + ' hasil. Persempit pencarian dengan tambahkan nama atau unit TL.</div>';
+    }
+    sugestList.innerHTML = html;
+  }
+
+  function pilihKandidat(row) {
+    const found = hasilSearchTerakhir.find(function(k) { return k.row === row; });
+    if (!found) { alert('Kandidat tidak ditemukan, coba cari ulang.'); return; }
+    kandidatTerpilih = found;
+    tampilkanKonfirmasi();
+  }
+
+  function tampilkanKonfirmasi() {
+    if (!kandidatTerpilih) return;
+    document.getElementById('konfNama').textContent = kandidatTerpilih.nama || '-';
+    document.getElementById('konfTglInterview').textContent = kandidatTerpilih.tglInterview || '-';
+    document.getElementById('konfUnit').textContent = kandidatTerpilih.unitTL || '-';
+    document.getElementById('konfPic').textContent = kandidatTerpilih.picTL || '-';
+    document.getElementById('konfPeriode').textContent = kandidatTerpilih.periodeTampil || '-';
+
+    const h1 = !!kandidatTerpilih.h1, h2 = !!kandidatTerpilih.h2, h3 = !!kandidatTerpilih.h3;
+    let hariAktual = '—';
+    if (h1 && h2 && h3) hariAktual = '✅ TL Selesai';
+    else if (h1 && h2) hariAktual = 'H3 (Hari ke-3)';
+    else if (h1) hariAktual = 'H2 (Hari ke-2)';
+    else hariAktual = 'H1 (Hari ke-1)';
+    document.getElementById('konfHari').textContent = hariAktual;
+
+    jenisTerpilih = 'hadir';
+    document.getElementById('inputWA').value = '';
+    document.getElementById('konfError').classList.add('hidden');
+
+    document.getElementById('stateSearch').classList.add('hidden');
+    document.getElementById('stateKonfirmasi').classList.remove('hidden');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function kembaliCari() {
+    kandidatTerpilih = null;
+    document.getElementById('stateKonfirmasi').classList.add('hidden');
+    document.getElementById('stateSearch').classList.remove('hidden');
+    document.getElementById('inputSearch').value = '';
+    document.getElementById('sugestBox').classList.add('hidden');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function bukaModalJenis() {
+    const noWA = document.getElementById('inputWA').value.trim();
+    const errBox = document.getElementById('konfError');
+    errBox.classList.add('hidden');
+    if (!noWA) {
+      errBox.textContent = '⚠️ No WA wajib diisi untuk verifikasi.';
+      errBox.classList.remove('hidden');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+    jenisTerpilih = 'hadir';
+    document.getElementById('inputKeterangan').value = '';
+    document.getElementById('modalJenisError').classList.add('hidden');
+    pilihJenis('hadir');
+    const btn = document.getElementById('btnSubmitJenis');
+    btn.disabled = false;
+    btn.textContent = '✓ Konfirmasi';
+    document.getElementById('modalJenis').classList.add('show');
+  }
+
+  function tutupModalJenis() { document.getElementById('modalJenis').classList.remove('show'); }
+
+  function pilihJenis(jenis) {
+    jenisTerpilih = jenis;
+    document.querySelectorAll('#modalJenis .jenis-btn').forEach(function(b) { b.classList.remove('active'); });
+    const btn = document.querySelector('#modalJenis .jenis-btn.' + jenis);
+    if (btn) btn.classList.add('active');
+    const ketBox = document.getElementById('keteranganBox');
+    if (jenis === 'izin' || jenis === 'sakit') ketBox.classList.add('show');
+    else ketBox.classList.remove('show');
+  }
+
+  async function submitJenis() {
+    const noWA = document.getElementById('inputWA').value.trim();
+    const keterangan = document.getElementById('inputKeterangan').value.trim();
+    const errBox = document.getElementById('modalJenisError');
+    errBox.classList.add('hidden');
+
+    if (!noWA) { errBox.textContent = '⚠️ No WA wajib diisi.'; errBox.classList.remove('hidden'); return; }
+    if (jenisTerpilih !== 'hadir' && !keterangan) {
+      errBox.textContent = '⚠️ Alasan wajib diisi untuk izin/sakit.';
+      errBox.classList.remove('hidden');
+      return;
+    }
+
+    const btn = document.getElementById('btnSubmitJenis');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-sm"></span>Memproses...';
+
+    const body = await apiCall('absen', {
+      row: kandidatTerpilih.row,
+      noWA: noWA,
+      jenis: jenisTerpilih,
+      keterangan: keterangan
+    });
+
+    btn.disabled = false;
+    btn.textContent = '✓ Konfirmasi';
+    tutupModalJenis();
+
+    if (body.success) {
+      tampilkanSukses(body.data || {});
+    } else {
+      tampilkanGagal(body);
+    }
+  }
+
+  function tampilkanHasilWrapper() {
+    document.getElementById('stateKonfirmasi').classList.add('hidden');
+    document.getElementById('stateHasil').classList.remove('hidden');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function _resetHasilElements() {
+    const ids = ['hasilHBadge', 'hasilWarning', 'hasilInfo', 'hasilData', 'hasilBerkas'];
+    ids.forEach(function(id) { document.getElementById(id).classList.add('hidden'); });
+    const penyemangatEl = document.getElementById('hasilPenyemangat');
+    penyemangatEl.classList.add('hidden');
+    penyemangatEl.innerHTML = '';
+    const icon = document.getElementById('hasilIcon');
+    const judul = document.getElementById('hasilJudul');
+    const pesan = document.getElementById('hasilPesan');
+    icon.classList.remove('hidden');
+    judul.classList.remove('hidden');
+    pesan.classList.remove('hidden');
+  }
+
+  function tampilkanSukses(res) {
+    tampilkanHasilWrapper();
+    _resetHasilElements();
+
+    const icon = document.getElementById('hasilIcon');
+    const judul = document.getElementById('hasilJudul');
+    const pesan = document.getElementById('hasilPesan');
+    const hBadge = document.getElementById('hasilHBadge');
+    const warning = document.getElementById('hasilWarning');
+    const berkas = document.getElementById('hasilBerkas');
+    const btnChat = document.getElementById('btnChatPic');
+    const btnMulai = document.getElementById('btnMulaiLagi');
+    const penyemangatEl = document.getElementById('hasilPenyemangat');
+
+    const nama = escapeHtml(res.nama || '');
+    const unit = escapeHtml(res.unitTL || '');
+    const pic = escapeHtml(res.picTL || '');
+    const periode = escapeHtml(res.periodeTampil || '');
+
+    btnChat.classList.remove('hidden');
+    btnMulai.textContent = '← Absen Kandidat Lain';
+
+    if (res.jenis === 'izin' || res.jenis === 'sakit') {
+      icon.className = 'hasil-icon sukses';
+      icon.textContent = '✅';
+      judul.textContent = 'LAPORAN DITERIMA';
+      const emoji = res.jenis === 'sakit' ? '🤒' : '🙏';
+      const ucapan = res.jenis === 'sakit' ? 'Semoga lekas sembuh ya.' : 'Semoga urusannya lancar ya.';
+      pesan.innerHTML =
+        'Terima kasih sudah lapor ' + res.jenis.toUpperCase() + ', <b>' + nama + '</b> ' + emoji + '<br><br>' +
+        'Keterangan kamu sudah tercatat.<br>' + ucapan + '<br><br>' +
+        '📅 <b>PENJADWALAN ULANG TL:</b><br>' +
+        'Silakan hubungi PIC TL <b>' + pic + '</b> untuk menjadwalkan ulang TL kamu, dan sampaikan kapan kamu bisa mulai mengikuti TL lagi.';
+      return;
+    }
+
+    icon.classList.add('hidden');
+    judul.classList.add('hidden');
+    pesan.classList.add('hidden');
+
+    let kelas, emoji, judulP, subP;
+    if (res.hariKe === 'H1') {
+      kelas = 'h1'; emoji = '🌅';
+      judulP = 'Selamat datang, ' + nama + '!';
+      subP = 'Hari pertama selalu paling berkesan.<br>Semangat ya — tunjukin versi terbaik kamu hari ini.';
+      berkas.classList.remove('hidden');
+    } else if (res.hariKe === 'H2') {
+      kelas = 'h2'; emoji = '💪';
+      judulP = 'Setengah jalan, ' + nama + '!';
+      subP = 'Dua hari sudah kamu lewati.<br>Jangan kendor ya — sedikit lagi, terus maju.';
+    } else if (res.hariKe === 'H3') {
+      kelas = 'h3'; emoji = '🎯';
+      judulP = 'Hari terakhir, ' + nama + '!';
+      subP = 'Terima kasih sudah berjuang sampai di sini.<br>Apapun hasilnya nanti, kamu sudah memberi yang terbaik.';
+    } else {
+      kelas = 'selesai'; emoji = '🎉';
+      judulP = 'Selamat, ' + nama + '!';
+      subP = 'TL kamu sudah selesai.<br>Istirahat dulu ya. Hasilnya akan segera kami kabari via WhatsApp.';
+    }
+    penyemangatEl.className = 'penyemangat ' + kelas;
+    penyemangatEl.innerHTML = '<span class="emoji">' + emoji + '</span><div class="judul">' + judulP + '</div><div class="sub">' + subP + '</div>';
+    penyemangatEl.classList.remove('hidden');
+
+    hBadge.classList.remove('hidden');
+    document.getElementById('hBadgeH1').className = 'h-badge' + (res.h1 ? ' aktif' : '');
+    document.getElementById('hBadgeH2').className = 'h-badge' + (res.h2 ? ' aktif' : '');
+    document.getElementById('hBadgeH3').className = 'h-badge' + (res.h3 ? ' aktif' : '');
+
+    if (res.warning === 'perlu_disesuaikan') {
+      warning.innerHTML =
+        '<div class="wb-judul">⚠️ PERHATIAN</div>' +
+        'Kamu absen <b>' + res.hariKe + '</b> hari ini, padahal periode TL tercatat <b>' + periode + '</b>.<br><br>' +
+        'Kalau periode tidak disesuaikan, H3 kamu nanti bakal jatuh di luar periode.<br><br>' +
+        'Minta PIC TL <b>' + pic + '</b> untuk menyesuaikan periode TL kamu ya.' +
+        '<button class="wb-btn" onclick="chatPicTL()">💬 Chat PIC TL</button>';
+      warning.classList.remove('hidden');
+    } else if (res.warning === 'wajib_konfirmasi') {
+      warning.innerHTML =
+        '<div class="wb-judul">⚠️ WAJIB KONFIRMASI</div>' +
+        'Kamu absen <b>' + res.hariKe + '</b> di luar periode TL yang tercatat <b>' + periode + '</b>.<br><br>' +
+        'Absen ini tetap tercatat, tapi data kamu kemungkinan sudah di-reject oleh sistem pusat.<br><br>' +
+        'Wajib hubungi PIC TL <b>' + pic + '</b> untuk penyelesaiannya.' +
+        '<button class="wb-btn" onclick="chatPicTL()">💬 Chat PIC TL</button>';
+      warning.classList.remove('hidden');
+    }
+  }
+
+  function tampilkanGagal(body) {
+    tampilkanHasilWrapper();
+    _resetHasilElements();
+
+    const res = body.data || {};
+    const kode = body.kode || (res.kode || '');
+    const nama = escapeHtml(res.nama || (kandidatTerpilih && kandidatTerpilih.nama) || '-');
+    const unit = escapeHtml(res.unitTL || (kandidatTerpilih && kandidatTerpilih.unitTL) || '-');
+    const periode = escapeHtml(res.periodeTampil || (kandidatTerpilih && kandidatTerpilih.periodeTampil) || '-');
+    const pic = escapeHtml(res.picTL || (kandidatTerpilih && kandidatTerpilih.picTL) || '');
+
+    const icon = document.getElementById('hasilIcon');
+    const judul = document.getElementById('hasilJudul');
+    const pesan = document.getElementById('hasilPesan');
+    const hBadge = document.getElementById('hasilHBadge');
+    const dataBox = document.getElementById('hasilData');
+    const btnChat = document.getElementById('btnChatPic');
+    const btnMulai = document.getElementById('btnMulaiLagi');
+
+    icon.className = 'hasil-icon tolak';
+    icon.textContent = '❌';
+    judul.textContent = 'TIDAK BISA ABSEN';
+    btnChat.classList.remove('hidden');
+    btnMulai.textContent = '← Coba Lagi';
+
+    let pesanHtml = '';
+    if (kode === 'mundur') {
+      pesanHtml = 'Kamu terdata pernah mengundurkan diri dari Tes Lapangan PNM Mekaar Unit <b>' + unit + '</b>.<br><br>Kalau ingin melanjutkan, silakan hubungi PIC TL <b>' + pic + '</b>.';
+    } else if (kode === 'wa_belum_terdaftar') {
+      pesanHtml = 'Nomor WA kamu belum terdaftar di sistem.<br><br>Silakan hubungi PIC TL <b>' + pic + '</b> untuk mendaftarkan nomor WA kamu terlebih dahulu.';
+    } else if (kode === 'wa_tidak_cocok') {
+      pesanHtml = 'Mohon maaf, No WA yang kamu masukkan tidak cocok dengan data yang terdaftar.';
+    } else if (kode === 'sudah_absen_hari_ini') {
+      pesanHtml = 'Kamu sudah absen <b>' + escapeHtml(res.hariKe || '') + '</b> hari ini jam <b>' + escapeHtml(res.jam || '') + '</b>.<br><br>Tidak perlu absen lagi ya. Terima kasih!';
+      icon.textContent = '⚠️'; icon.className = 'hasil-icon peringatan';
+    } else if (kode === 'tl_selesai') {
+      pesanHtml = 'TL kamu sudah selesai (H1 ✅ H2 ✅ H3 ✅).<br>Terima kasih sudah menyelesaikan Tes Lapangan di Unit <b>' + unit + '</b>.<br><br>Ditunggu info lebih lanjut ya.';
+      icon.textContent = '🎉'; icon.className = 'hasil-icon sukses';
+      hBadge.classList.remove('hidden');
+      document.getElementById('hBadgeH1').className = 'h-badge aktif';
+      document.getElementById('hBadgeH2').className = 'h-badge aktif';
+      document.getElementById('hBadgeH3').className = 'h-badge aktif';
+    } else if (kode === 'belum_mulai') {
+      pesanHtml = '<b>' + escapeHtml(body.message || 'TL kamu belum dimulai') + '</b><br><br>📅 Jadwal TL : <b>' + periode + '</b><br>📍 Unit TL &nbsp;: <b>' + unit + '</b><br><br>Silakan datang ke unit pada hari pertama TL untuk absen.';
+      icon.textContent = '⏰'; icon.className = 'hasil-icon peringatan';
+    } else if (kode === 'h1_diluar') {
+      pesanHtml = 'Hari ini sudah melewati periode TL kamu yang tercatat <b>' + periode + '</b>.<br><br>Absen H1 tidak bisa diproses otomatis. Silakan hubungi PIC TL <b>' + pic + '</b> untuk penyelesaian manual.';
+    } else if (kode === 'h1_2x_diluar') {
+      pesanHtml = 'Kamu sudah 2x mencoba absen H1 di luar periode TL.<br><br>Absen ini tidak bisa diproses. Silakan hubungi PIC TL <b>' + pic + '</b> untuk penyelesaian manual.';
+    } else if (kode === 'dua_hari_kosong') {
+      pesanHtml = 'Kamu sudah 2 hari tanpa keterangan setelah periode TL berakhir (<b>' + periode + '</b>).<br><br>Absen ini tidak bisa diproses otomatis. Silakan hubungi PIC TL <b>' + pic + '</b> untuk penjadwalan ulang TL kamu.';
+    } else {
+      pesanHtml = escapeHtml(body.message || res.message || 'Terjadi kesalahan.');
+    }
+    pesan.innerHTML = pesanHtml;
+
+    if (['mundur', 'wa_belum_terdaftar', 'h1_diluar', 'h1_2x_diluar', 'dua_hari_kosong'].indexOf(kode) !== -1) {
+      const noWAInput = document.getElementById('inputWA').value.trim();
+      let html = '';
+      html += '<div class="data-row"><div class="data-label">👤 Nama</div><div class="data-value">' + nama + '</div></div>';
+      html += '<div class="data-row"><div class="data-label">📱 No WA input</div><div class="data-value">' + escapeHtml(noWAInput) + '</div></div>';
+      html += '<div class="data-row"><div class="data-label">📍 Unit TL</div><div class="data-value">' + unit + '</div></div>';
+      html += '<div class="data-row"><div class="data-label">📅 Periode</div><div class="data-value">' + periode + '</div></div>';
+      dataBox.innerHTML = html;
+      dataBox.classList.remove('hidden');
+    }
+    if (kode === 'wa_tidak_cocok') {
+      let html = '';
+      html += '<div class="data-row"><div class="data-label">📱 WA kamu input</div><div class="data-value">' + escapeHtml(res.waInput || '-') + '</div></div>';
+      html += '<div class="data-row"><div class="data-label">📱 WA terdaftar</div><div class="data-value">****' + escapeHtml(res.waDBLast4 || '') + '</div></div>';
+      dataBox.innerHTML = html;
+      dataBox.classList.remove('hidden');
+    }
+  }
+
+  async function chatPicTL() {
+    if (!kandidatTerpilih) return;
+    const inisial = kandidatTerpilih.picTL || '';
+    if (!inisial) {
+      alert('Nomor PIC TL tidak tersedia. Hubungi admin SDM di grup WhatsApp Training.');
+      return;
+    }
+    const body = await apiCall('pic_wa', { inisial: inisial });
+    const nomor = body && body.data ? body.data.nomor : '';
+    if (!nomor) {
+      alert('PIC TL (' + inisial + ') belum mendaftarkan No WA.\n\nHubungi admin SDM di grup WhatsApp Training.');
+      return;
+    }
+    const pesan = _susunPesanChatPIC();
+    const nomorBersih = normalisasiNomorWA(nomor);
+    window.open('https://wa.me/' + nomorBersih + '?text=' + encodeURIComponent(pesan), '_blank');
+  }
+
+  function _susunPesanChatPIC() {
+    const nama = kandidatTerpilih.nama || '';
+    const unit = kandidatTerpilih.unitTL || '';
+    const periode = kandidatTerpilih.periodeTampil || '';
+    if (jenisTerpilih === 'izin') {
+      return 'Halo Pak/Bu, saya ' + nama + ' dari Unit ' + unit + '.\n\nSaya izin TL hari ini. Mohon dibantu untuk penjadwalan ulang TL saya ya. Saya bisa mulai lagi tanggal [____].';
+    }
+    if (jenisTerpilih === 'sakit') {
+      return 'Halo Pak/Bu, saya ' + nama + ' dari Unit ' + unit + '.\n\nSaya sakit dan tidak bisa mengikuti TL hari ini. Mohon dibantu untuk penjadwalan ulang TL saya ya. Saya perkirakan bisa mulai lagi tanggal [____].';
+    }
+    return 'Halo Pak/Bu, saya ' + nama + ' dari Unit ' + unit + ' periode ' + periode + '.\n\nSaya mau absen TL tapi ada kendala. Mohon dibantu ya.';
+  }
+
+  function normalisasiNomorWA(no) {
+    let s = String(no || '').replace(/\D/g, '');
+    if (s.startsWith('62')) return s;
+    if (s.startsWith('0')) return '62' + s.substring(1);
+    if (s.startsWith('8')) return '62' + s;
+    return s;
+  }
+
+  function mulaiLagi() {
+    kandidatTerpilih = null;
+    document.getElementById('stateHasil').classList.add('hidden');
+    document.getElementById('stateEvaluasiSelesai').classList.add('hidden');
+    document.getElementById('stateSearch').classList.remove('hidden');
+    document.getElementById('inputSearch').value = '';
+    document.getElementById('sugestBox').classList.add('hidden');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function klikEvaluasiTL() {
+    if (!kandidatTerpilih) return;
+    
+    document.getElementById('evalLokasi').value = kandidatTerpilih.unitTL || '-';
+    document.getElementById('evalPosisi').value = kandidatTerpilih.posisi || 'Account Officer (AO) / Staff Lapangan';
+    document.getElementById('evalTgl').value = kandidatTerpilih.periodeTampil || '-';
+    
+    const h1 = !!kandidatTerpilih.h1, h2 = !!kandidatTerpilih.h2, h3 = !!kandidatTerpilih.h3;
+    let defaultH = 'Hari Pertama';
+    if (h1 && !h2) defaultH = 'Hari Kedua';
+    else if (h1 && h2 && !h3) defaultH = 'Hari Ketiga';
+    else if (h1 && h2 && h3) defaultH = 'Hari Ketiga';
+    
+    const radiosHari = document.getElementsByName('evalHariKe');
+    for (let i = 0; i < radiosHari.length; i++) {
+      if (radiosHari[i].value === defaultH) radiosHari[i].checked = true;
+    }
+    
+    document.getElementById('evalNamaMentor').value = '';
+    document.getElementById('evalNoMentor').value = '';
+    document.getElementById('evalDipelajari').value = '';
+    document.getElementById('evalKesan').value = '';
+    document.getElementById('evalSaran').value = '';
+    document.getElementById('evalJamPulang').value = '';
+    document.getElementById('modalEvalError').classList.add('hidden');
+    
+    const btn = document.getElementById('btnSubmitEval');
+    btn.disabled = false;
+    btn.textContent = '✓ Kirim Evaluasi';
+
+    document.getElementById('stateKonfirmasi').classList.add('hidden');
+    document.getElementById('stateEvaluasi').classList.remove('hidden');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function kembaliKeKonfirmasi() {
+    document.getElementById('stateEvaluasi').classList.add('hidden');
+    document.getElementById('stateKonfirmasi').classList.remove('hidden');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  async function submitEvaluasi() {
+    const getRadioVal = (name) => {
+      const el = document.querySelector(`input[name="${name}"]:checked`);
+      return el ? el.value : '';
+    };
+
+    const hariKe = getRadioVal('evalHariKe');
+    const namaMentor = document.getElementById('evalNamaMentor').value.trim();
+    const noMentor = document.getElementById('evalNoMentor').value.trim();
+    const dipelajari = document.getElementById('evalDipelajari').value.trim();
+    const kesan = document.getElementById('evalKesan').value.trim();
+    const yakin = getRadioVal('evalYakin');
+    const ortu = getRadioVal('evalOrtu');
+    const jamPulang = document.getElementById('evalJamPulang').value;
+    const ikut = getRadioVal('evalIkut');
+    const saran = document.getElementById('evalSaran').value.trim();
+    const errBox = document.getElementById('modalEvalError');
+    
+    errBox.classList.add('hidden');
+
+    if (!namaMentor || !dipelajari || !kesan) {
+      errBox.textContent = '⚠️ Nama Mentor, Yang Dipelajari, dan Kesan wajib diisi.';
+      errBox.classList.remove('hidden');
+      return;
+    }
+
+    const btn = document.getElementById('btnSubmitEval');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-sm"></span>Mengirim...';
+
+    const body = await apiCall('submit_evaluasi', {
+      nama: kandidatTerpilih.nama,
+      noWA: kandidatTerpilih.waNorm || kandidatTerpilih.noWA,
+      lokasi: kandidatTerpilih.unitTL,
+      posisi: kandidatTerpilih.posisi || 'Account Officer',
+      tglTL: kandidatTerpilih.periodeTampil,
+      hariKe: hariKe,
+      namaMentor: namaMentor,
+      noMentor: noMentor,
+      dipelajari: dipelajari,
+      kesan: kesan,
+      yakin: yakin,
+      ortu: ortu,
+      jamPulang: jamPulang,
+      saran: saran,
+      ikut: ikut
+    });
+
+    btn.disabled = false;
+    btn.textContent = '✓ Kirim Evaluasi';
+
+    if (body.success) {
+      document.getElementById('stateEvaluasi').classList.add('hidden');
+      document.getElementById('stateEvaluasiSelesai').classList.remove('hidden');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      errBox.textContent = '❌ ' + (body.message || 'Gagal mengirim evaluasi.');
+      errBox.classList.remove('hidden');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
+
+  function escapeHtml(s) {
+    return String(s == null ? '' : s).replace(/[&<>"]/g, function(c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+    });
+  }
+
+  (async function preloadEval() {
+    const body = await apiCall('eval_flag', {});
+    if (body && body.success && body.data) {
+      flagEvalAktif = !!body.data.aktif;
+      console.log('[Eval] Flag loaded:', flagEvalAktif);
+    } else {
+      console.warn('[Eval] Gagal load flag:', body && body.message);
+    }
+  })();
+</script>
+</body>
+</html>
