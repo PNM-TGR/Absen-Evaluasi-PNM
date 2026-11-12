@@ -821,7 +821,12 @@
   function klikEvaluasiTL() {
     if (!kandidatTerpilih) return;
     
-    document.getElementById('evalLokasi').value = kandidatTerpilih.unitTL || '-';
+    let lokasiLengkap = kandidatTerpilih.unitTL || '-';
+    // Jika data dari sheet belum ada tanda "|", gabungkan dengan Area
+    if (kandidatTerpilih.area && lokasiLengkap.indexOf('|') === -1) {
+      lokasiLengkap = 'Area ' + kandidatTerpilih.area + ' | ' + lokasiLengkap;
+    }
+    document.getElementById('evalLokasi').value = lokasiLengkap;
     document.getElementById('evalPosisi').value = kandidatTerpilih.posisi || 'Account Officer (AO) / Staff Lapangan';
     // Isi otomatis dengan tanggal hari ini (format YYYY-MM-DD untuk input type="date")
     const today = new Date();
