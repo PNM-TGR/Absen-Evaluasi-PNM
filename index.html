@@ -263,28 +263,27 @@
 
     <!-- ═══ STATE 4: FORM EVALUASI (Full Page) ═══ -->
     <div id="stateEvaluasi" class="hidden">
+      
+      <!-- KARTU 1: Info & Jurnal -->
       <div class="card">
-        <div class="konfirmasi-header">
-          <div class="konfirmasi-icon">📝</div>
-          <div class="konfirmasi-title">Evaluasi TL</div>
+        <div class="konfirmasi-header" style="padding-bottom:10px; margin-bottom:14px; border-bottom:none;">
+          <div class="konfirmasi-title" style="font-size:16px; color:var(--primary);">📋 Jurnal Hari Ini</div>
         </div>
         
-        <!-- Auto-filled fields -->
-        <label class="search-label">Lokasi Kantor Tempat Pembekalan</label>
-        <input type="text" id="evalLokasi" class="search-input" style="height:40px; padding:0 10px; margin-bottom:10px; background:#eef3f8; color:#666;" readonly>
-
         <div style="display:flex; gap:10px; margin-bottom:10px;">
           <div style="flex:1;">
-            <label class="search-label">Jabatan/Posisi saat tes lapang</label>
-            <input type="text" id="evalPosisi" class="search-input" style="height:40px; padding:0 10px; background:#eef3f8; color:#666;" readonly>
+            <label class="search-label">Lokasi Kantor</label>
+            <input type="text" id="evalLokasi" class="search-input" style="height:40px; padding:0 10px; background:#eef3f8; color:#666; font-size: 13px;" readonly>
           </div>
           <div style="flex:1;">
-            <label class="search-label">Tanggal Tes Lapang</label>
-            <input type="text" id="evalTgl" class="search-input" style="height:40px; padding:0 10px; background:#eef3f8; color:#666;" readonly>
+            <label class="search-label">Jabatan/Posisi</label>
+            <input type="text" id="evalPosisi" class="search-input" style="height:40px; padding:0 10px; background:#eef3f8; color:#666; font-size: 13px;" readonly>
           </div>
         </div>
 
-        <!-- Pilihan Teks (Tanpa Bola) -->
+        <label class="search-label">Tanggal Tes Lapang <span style="color:red">*</span></label>
+        <input type="date" id="evalTgl" class="search-input" style="height:40px; padding:0 10px; margin-bottom:10px; font-size: 13px;">
+
         <label class="search-label">Hari ini kamu melaksanakan Tes Lapang hari ke berapa <span style="color:red">*</span></label>
         <div class="pilihan-box">
           <label class="pilihan-item"><input type="radio" name="evalHariKe" value="Hari Pertama" checked> Hari Pertama</label>
@@ -292,17 +291,24 @@
           <label class="pilihan-item"><input type="radio" name="evalHariKe" value="Hari Ketiga"> Hari Ketiga</label>
         </div>
 
-        <label class="search-label">Siapa Nama Mentor/Pengajar yang menemani kamu tes lapangan hari ini? <span style="color:red">*</span></label>
-        <input type="text" id="evalNamaMentor" class="search-input" style="height:40px; padding:0 10px; margin-bottom:10px;" placeholder="Ketik nama mentor...">
+        <label class="search-label">Siapa Nama Mentor/Pengajar? <span style="color:red">*</span></label>
+        <input type="text" id="evalNamaMentor" class="search-input" style="height:40px; padding:0 10px; margin-bottom:10px; font-size: 13px;" placeholder="Ketik nama mentor...">
 
-        <label class="search-label">Nomor Mentor/Pengajar (Contoh Format : 081212341234) <span style="color:red">*</span></label>
-        <input type="tel" id="evalNoMentor" class="search-input" style="height:40px; padding:0 10px; margin-bottom:10px;" placeholder="08xxxx">
+        <label class="search-label">Nomor Mentor/Pengajar <span style="color:red">*</span></label>
+        <input type="tel" id="evalNoMentor" class="search-input" style="height:40px; padding:0 10px; margin-bottom:10px; font-size: 13px;" placeholder="08xxxx">
 
-        <label class="search-label">Apa yang kamu pelajari di kegiatan Tes Lapang hari ini dengan mentor mu? <span style="color:red">*</span></label>
-        <textarea id="evalDipelajari" class="search-input" style="height:70px; padding:10px; margin-bottom:10px;" placeholder="Tulis apa yang dipelajari..."></textarea>
+        <label class="search-label">Apa yang kamu pelajari hari ini? <span style="color:red">*</span></label>
+        <textarea id="evalDipelajari" class="search-input" style="height:70px; padding:10px; margin-bottom:10px; font-size: 13px;" placeholder="Tulis apa yang dipelajari..."></textarea>
 
-        <label class="search-label">Kesan seperti apa yang kamu dapatkan dari tes lapangan hari ini? <span style="color:red">*</span></label>
-        <textarea id="evalKesan" class="search-input" style="height:70px; padding:10px; margin-bottom:10px;" placeholder="Tulis kesanmu..."></textarea>
+        <label class="search-label">Kesan seperti apa yang kamu dapatkan? <span style="color:red">*</span></label>
+        <textarea id="evalKesan" class="search-input" style="height:70px; padding:10px; margin-bottom:0; font-size: 13px;" placeholder="Tulis kesanmu..."></textarea>
+      </div>
+
+      <!-- KARTU 2: Umpan Balik & Saran -->
+      <div class="card">
+        <div class="konfirmasi-header" style="padding-bottom:10px; margin-bottom:14px; border-bottom:none;">
+          <div class="konfirmasi-title" style="font-size:16px; color:var(--primary);">💬 Umpan Balik & Saran</div>
+        </div>
 
         <label class="search-label">Apakah kamu sudah yakin ingin bekerja di PNM Mekaar? <span style="color:red">*</span></label>
         <div class="pilihan-box">
@@ -310,18 +316,18 @@
           <label class="pilihan-item"><input type="radio" name="evalYakin" value="Sudah Yakin" checked> Sudah Yakin</label>
         </div>
 
-        <label class="search-label">Apakah orang tua, keluarga, ataupun suami sudah setuju jika kamu bekerja di PNM sampai larut malam? <span style="color:red">*</span></label>
+        <label class="search-label">Apakah orang tua/keluarga sudah setuju kamu bekerja sampai larut malam? <span style="color:red">*</span></label>
         <div class="pilihan-box">
           <label class="pilihan-item"><input type="radio" name="evalOrtu" value="Tidak Setuju"> Tidak Setuju</label>
           <label class="pilihan-item"><input type="radio" name="evalOrtu" value="Masih ragu ragu"> Masih ragu ragu</label>
           <label class="pilihan-item"><input type="radio" name="evalOrtu" value="Ya Setuju" checked> Ya Setuju</label>
         </div>
 
-        <label class="search-label">Hari ini Pulang Tes Lapagan dari Kantor Unit Jam Berapa? (WIB) <span style="color:red">*</span></label>
-        <input type="time" id="evalJamPulang" class="search-input" style="height:40px; padding:0 10px; margin-bottom:10px; width: 100%;">
+        <label class="search-label">Hari ini Pulang dari Kantor Unit Jam Berapa? (WIB) <span style="color:red">*</span></label>
+        <input type="time" id="evalJamPulang" class="search-input" style="height:40px; padding:0 10px; margin-bottom:10px; width: 100%; font-size: 13px;">
 
-        <label class="search-label">Adakah saran dan masukkan untuk kondisi lingkungan pertemanan kerja atau kondisi kantor yang ada di Unit PNM Mekaar yang sudah kamu ikuti ini? <span style="color:red">*</span></label>
-        <textarea id="evalSaran" class="search-input" style="height:70px; padding:10px; margin-bottom:10px;" placeholder="Tulis saran..."></textarea>
+        <label class="search-label">Adakah saran dan masukkan untuk Unit PNM Mekaar? <span style="color:red">*</span></label>
+        <textarea id="evalSaran" class="search-input" style="height:70px; padding:10px; margin-bottom:10px; font-size: 13px;" placeholder="Tulis saran..."></textarea>
 
         <label class="search-label">Apakah Kamu akan mengikuti tahapan berikutnya?</label>
         <div class="pilihan-box">
@@ -329,11 +335,12 @@
           <label class="pilihan-item"><input type="radio" name="evalIkut" value="Tidak, saya merasa tidak sanggup"> Tidak, saya merasa tidak sanggup</label>
         </div>
 
-        <div id="modalEvalError" class="error-box hidden" style="margin-bottom:10px;"></div>
+        <div id="modalEvalError" class="error-box hidden" style="margin-bottom:10px; margin-top:10px;"></div>
 
         <button class="btn btn-primary" id="btnSubmitEval" onclick="submitEvaluasi()" style="margin-top:16px;">✓ Kirim Evaluasi</button>
         <button class="btn btn-secondary" onclick="kembaliKeKonfirmasi()" style="margin-top:10px;">← Batal & Kembali</button>
       </div>
+
     </div>
 
     <!-- ═══ STATE 5: EVALUASI SELESAI ═══ -->
@@ -816,7 +823,12 @@
     
     document.getElementById('evalLokasi').value = kandidatTerpilih.unitTL || '-';
     document.getElementById('evalPosisi').value = kandidatTerpilih.posisi || 'Account Officer (AO) / Staff Lapangan';
-    document.getElementById('evalTgl').value = kandidatTerpilih.periodeTampil || '-';
+    // Isi otomatis dengan tanggal hari ini (format YYYY-MM-DD untuk input type="date")
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const dd = String(today.getDate()).padStart(2, '0');
+    document.getElementById('evalTgl').value = yyyy + '-' + mm + '-' + dd;
     
     const h1 = !!kandidatTerpilih.h1, h2 = !!kandidatTerpilih.h2, h3 = !!kandidatTerpilih.h3;
     let defaultH = 'Hari Pertama';
@@ -887,7 +899,7 @@
       noWA: kandidatTerpilih.waNorm || kandidatTerpilih.noWA,
       lokasi: kandidatTerpilih.unitTL,
       posisi: kandidatTerpilih.posisi || 'Account Officer',
-      tglTL: kandidatTerpilih.periodeTampil,
+      tglTL: document.getElementById('evalTgl').value,
       hariKe: hariKe,
       namaMentor: namaMentor,
       noMentor: noMentor,
