@@ -347,10 +347,9 @@
     <div id="stateEvaluasiSelesai" class="hidden">
       <div class="hasil-card">
         <div class="hasil-icon sukses">✅</div>
-        <div class="hasil-judul">Evaluasi Terkirim!</div>
-        <div class="hasil-pesan" style="margin-top:10px;">
-          Terima kasih sudah mengisi jurnal harian Tes Lapangan hari ini.<br><br>
-          Data kamu sudah masuk ke sistem.
+        <div class="hasil-judul">Evaluasi Berhasil Dikirim! 🎉</div>
+        <div class="hasil-pesan" id="pesanSuksesEval" style="margin-top:10px;">
+          <!-- Teks akan diisi otomatis oleh Javascript -->
         </div>
         <button class="btn btn-primary" onclick="mulaiLagi()" style="margin-top:20px;">← Kembali ke Awal</button>
       </div>
@@ -824,7 +823,14 @@
     let lokasiLengkap = kandidatTerpilih.unitTL || '-';
     // Jika data dari sheet belum ada tanda "|", gabungkan dengan Area
     if (kandidatTerpilih.area && lokasiLengkap.indexOf('|') === -1) {
-      lokasiLengkap = 'Area ' + kandidatTerpilih.area + ' | ' + lokasiLengkap;
+      let namaArea = kandidatTerpilih.area;
+      
+      // Cek jika belum ada kata "Area" di depannya, baru tambahkan
+      if (!namaArea.toLowerCase().startsWith('area ')) {
+        namaArea = 'Area ' + namaArea;
+      }
+      
+      lokasiLengkap = namaArea + ' | ' + lokasiLengkap;
     }
     document.getElementById('evalLokasi').value = lokasiLengkap;
     document.getElementById('evalPosisi').value = kandidatTerpilih.posisi || 'Account Officer (AO) / Staff Lapangan';
@@ -895,37 +901,77 @@
       return;
     }
 
-    const btn = document.getElementById('btnSubmitEval');
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner-sm"></span>Mengirim...';
+    async function doSubmit(overwriteStatus) {
+      const btn = document.getElementById('btnSubmitEval');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner-sm"></span>Mengirim...';
 
-    const body = await apiCall('submit_evaluasi', {
-      nama: kandidatTerpilih.nama,
-      noWA: kandidatTerpilih.waNorm || kandidatTerpilih.noWA,
-      lokasi: kandidatTerpilih.unitTL,
-      posisi: kandidatTerpilih.posisi || 'Account Officer',
-      tglTL: document.getElementById('evalTgl').value,
-      hariKe: hariKe,
-      namaMentor: namaMentor,
-      noMentor: noMentor,
-      dipelajari: dipelajari,
-      kesan: kesan,
-      yakin: yakin,
-      ortu: ortu,
-      jamPulang: jamPulang,
-      saran: saran,
-      ikut: ikut
-    });
+      const body = await apiCall('submit_evaluasi', {
+        nama: kandidatTerpilih.nama,
+        noWA: kandidatTerpilih.waNorm || kandidatTerpilih.noWA,
+        lokasi: kandidatTerpilih.unitTL,
+        posisi: kandidatTerpilih.posisi || 'Account Officer',
+        tglTL: document.getElementById('evalTgl').value,
+        hariKe: hariKe,
+        namaMentor: namaMentor,
+        noMentor: noMentor,
+        dipelajari: dipelajari,
+        kesan: kesan,
+        yakin: yakin,
+        ortu: ortu,
+        jamPulang: jamPulang,
+        saran: saran,
+        ikut: ikut,
+        overwrite: overwriteStatus
+      });
+
+      btn.disabled = false;
+      btn.textContent = '✓ Kirim Evaluasi';
+
+      if (body.success) {
+        // (Biarkan logika pesan sukses dinamis H-3 Anda di sini)
 
     btn.disabled = false;
     btn.textContent = '✓ Kirim Evaluasi';
 
     if (body.success) {
+      // ═══ LOGIKA PESAN DINAMIS (H-3 vs H-1/H-2) ═══
+      const pesanBox = document.getElementById('pesanSuksesEval');
+      
+      if (hariKe === 'Hari Ketiga') {
+        pesanBox.innerHTML = `
+          Selamat! Kamu sudah menyelesaikan hari terakhir Tes Lapangan. 🎉<br><br>
+          Terima kasih ya udah berjuang dan memberikan usaha terbaik sampai hari ke-3. Semoga hasilnya sesuai dengan yang diharapkan ya! 🤞<br><br>
+          Ditunggu info lebih lanjutnya dari PIC TL masing-masing.<br><br>
+          <span style="background:#fff5df; padding:10px; border-radius:8px; display:block; border:1px solid #f5d78e; color:#bd7900; font-size:13px; text-align:left;">
+            📌 <b>PENGINGAT BERKAS:</b><br>
+            Pastikan semua berkas persyaratan kamu (KTP, KK, Ijazah, dll) sudah lengkap dan diserahkan ke PIC hari ini ya.
+          </span>
+        `;
+      } else {
+        pesanBox.innerHTML = `
+          Jurnal evaluasi kamu hari ini sudah tersimpan di sistem.<br><br>
+          Terima kasih ya udah kerja keras dan semangat selama Tes Lapangan hari ini. Jangan lupa istirahat yang cukup buat besok ya! 💪🔥<br><br>
+          <span style="background:#fff5df; padding:10px; border-radius:8px; display:block; border:1px solid #f5d78e; color:#bd7900; font-size:13px; text-align:left;">
+            📌 <b>PENGINGAT BERKAS:</b><br>
+            Jangan lupa siapkan dan lengkapi berkas persyaratan kamu ya (KTP, KK, Ijazah, dll). Paling lambat dikumpulkan maksimal <b>Hari ke-3</b> Tes Lapangan.
+          </span>
+        `;
+      }
+      
       document.getElementById('stateEvaluasi').classList.add('hidden');
       document.getElementById('stateEvaluasiSelesai').classList.remove('hidden');
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
-      if (['belum_absen', 'belum_jam', 'kadaluarsa'].includes(body.kode)) {
+      if (body.kode === 'sudah_isi') {
+        // Munculkan konfirmasi
+        if (confirm('⚠️ ' + body.message)) {
+          // Jika klik OK/Ya, kirim ulang dengan flag overwrite=true
+          doSubmit(true);
+        }
+      } 
+      // Jika error karena belum absen, belum jam 15:00, atau kadaluarsa
+      else if (['belum_absen', 'belum_jam', 'kadaluarsa'].includes(body.kode)) {
         document.getElementById('stateEvaluasi').classList.add('hidden');
         document.getElementById('stateKonfirmasi').classList.remove('hidden');
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -936,6 +982,10 @@
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     }
+    } // Tutup fungsi doSubmit
+
+    // Panggil fungsi pertama kali
+    doSubmit(false);
   }
 
   function escapeHtml(s) {
