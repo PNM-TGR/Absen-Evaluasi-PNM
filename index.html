@@ -225,9 +225,22 @@
         <div class="wa-hint">💡 <b>Penting:</b> Gunakan nomor WA yang aktif dan sama dengan yang kamu berikan ke PIC saat mendaftar.</div>
         <div id="konfError" class="error-box hidden mt-3"></div>
 
-        <button class="btn btn-primary" onclick="bukaModalJenis()" style="margin-top:18px;">🎯 ABSEN TES LAPANGAN</button>
-        <button class="btn btn-secondary" onclick="klikEvaluasiTL()" style="margin-top:10px;background:#fff;border:1.5px solid #07579f;color:#07579f;">📝 ISI EVALUASI TL</button>
-        <button class="btn btn-secondary" onclick="kembaliCari()" style="margin-top:10px;">← Ganti Pilihan</button>
+        <!-- Panduan Singkat -->
+        <div style="margin-top: 16px; margin-bottom: 12px; padding: 10px 12px; background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 10px; font-size: 11.5px; color: #526a84; line-height: 1.5; text-align: left;">
+          <b>💡 Panduan:</b><br>
+          • Pagi/Siang: Klik tombol <b>🎯 ABSEN</b>.<br>
+          • Sore (>15:00): Klik tombol <b>📝 EVALUASI</b> (pastikan sudah absen hari ini).
+        </div>
+
+        <!-- Tombol Kiri Kanan -->
+        <div style="display: flex; gap: 8px; margin-top: 4px;">
+          <button class="btn btn-primary" onclick="bukaModalJenis()" style="flex: 1; margin-top: 0; padding: 0 10px; font-size: 13px;">🎯 ABSEN</button>
+          
+          <button class="btn" onclick="klikEvaluasiTL()" style="flex: 1; margin-top: 0; padding: 0 10px; font-size: 13px; background:#fff; border:1.5px solid #07579f; color:#07579f; height: 54px; border-radius: 14px; font-weight: 800; display: flex; align-items: center; justify-content: center;">📝 EVALUASI</button>
+        </div>
+
+        <!-- Tombol Batal -->
+        <button class="btn btn-secondary" onclick="kembaliCari()" style="margin-top: 10px;">← Ganti Pilihan</button>
       </div>
     </div>
 
