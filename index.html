@@ -405,6 +405,7 @@
   let searchTimer = null;
   let hasilSearchTerakhir = [];
   let flagEvalAktif = null;
+  let currentUnitFilter = ''; // State untuk filter unit
 
   function updateClock() {
     const now = new Date();
@@ -443,9 +444,10 @@
       sugestBox.classList.add('hidden');
       return;
     }
+    currentUnitFilter = ''; // Reset filter unit saat ngetik ulang
     sugestBox.classList.remove('hidden');
     sugestList.innerHTML = '<div class="loading-box"><div class="spinner"></div><div>Mencari...</div></div>';
-    searchTimer = setTimeout(function() { cariKandidat(q); }, 400);
+    searchTimer = setTimeout(function() { cariKandidat(q, ''); }, 400);
   });
 
   inputSearch.addEventListener('keydown', function(e) {
@@ -455,32 +457,33 @@
     }
   });
 
-  async function cariKandidat(query) {
-    const body = await apiCall('search', { q: query });
+  async function cariKandidat(query, unitFilter) {
+    const body = await apiCall('search', { q: query, unitFilter: unitFilter || '' });
     if (!body.success) {
       sugestList.innerHTML = '<div class="sugest-hint">❌ ' + escapeHtml(body.message || 'Gagal mencari') + '</div>';
       return;
     }
     const data = body.data || {};
     if (!data.kandidat || data.kandidat.length === 0) {
-      sugestList.innerHTML = '<div class="sugest-hint">❌ Nama tidak ditemukan.<br><br>Jika nama kamu tetap tidak muncul, hubungi PIC Interview yang memberikan pengumuman jadwal TL.</div>';
+      let pesan = '❌ Nama tidak ditemukan.';
+      if (unitFilter) pesan = '❌ Tidak ada nama dengan Unit "' + unitFilter + '" pada pencarian ini.';
+      sugestList.innerHTML = '<div class="sugest-hint">' + pesan + '<br><br>Jika nama kamu tetap tidak muncul, hubungi PIC Interview yang memberikan pengumuman jadwal TL.</div>';
       return;
     }
-    renderSugest(data.kandidat, data.total, data.terpotong);
+    renderSugest(data.kandidat, data.total, data.terpotong, data.unitList);
   }
 
-  function renderSugest(list, total, terpotong) {
+  function renderSugest(list, total, terpotong, unitList) {
     hasilSearchTerakhir = list;
     let html = '';
     
-    // ═══ INFORMASI JUMLAH HASIL (Selalu muncul jika ada data) ═══
+    // ═══ INFORMASI JUMLAH HASIL ═══
     if (list.length > 0) {
       let pesanInfo = '<b>Ditemukan ' + total + ' nama.</b> Geser layar jika nama Anda ada di bawah.';
       let gayaInfo = 'margin-bottom:10px; background:#eaf4ff; color:#07579f; border:1px solid #a8caf0;';
       
-      // Jika lebih dari 1, tekankan agar teliti
       if (list.length > 1) {
-        pesanInfo = '<b>⚠️ Ada ' + total + ' nama yang cocok.</b><br>Geser layar dan pastikan Unit serta Jadwal TL sudah sesuai dengan Anda.';
+        pesanInfo = '<b>⚠️ Ada ' + total + ' nama yang cocok.</b><br>Geser layar dan pastikan Unit serta Jadwal TL sudah sesuai.';
         gayaInfo = 'margin-bottom:10px; background:#fff5df; color:#bd7900; border:1px solid #f5d78e;';
       }
       
@@ -499,10 +502,38 @@
         '</div></div>';
     });
     
-    if (terpotong && total > list.length) {
-      html += '<div class="sugest-hint">📌 Menampilkan ' + list.length + ' dari ' + total + ' hasil. Persempit pencarian dengan menambahkan nama atau unit TL.</div>';
+    // ═══ FITUR FILTER UNIT (MUNCUL JIKA TOTAL > 10) ═══
+    if (total > 10 && unitList && unitList.length > 1) {
+       html += '<div style="margin-top:15px; padding-top:15px; border-top:1px dashed #cbd5e1;">';
+       html += '<div style="font-size:11.5px; font-weight:800; color:#3d526b; margin-bottom:8px;">📍 Terlalu banyak? Saring berdasarkan Unit:</div>';
+       html += '<div style="display:flex; flex-wrap:wrap; gap:6px;">';
+       
+       // Tombol "Semua Unit" (Reset)
+       let styleAktif = currentUnitFilter === '' ? 'background:#07579f; color:white; border-color:#07579f;' : 'background:#f8fafc; color:#526a84; border-color:#e5eaf0;';
+       html += '<button onclick="pilihUnitFilter(\'\')" style="padding:6px 12px; border-radius:20px; font-size:11px; font-weight:700; cursor:pointer; border:1px solid; ' + styleAktif + '">Semua Unit</button>';
+       
+       // Tombol Unit Lainnya
+       unitList.forEach(function(unit) {
+          let isAktif = (currentUnitFilter === unit);
+          let styleBtn = isAktif ? 'background:#07579f; color:white; border-color:#07579f;' : 'background:white; color:#526a84; border-color:#dce5ee;';
+          html += '<button onclick="pilihUnitFilter(\'' + escapeAttr(unit) + '\')" style="padding:6px 12px; border-radius:20px; font-size:11px; font-weight:700; cursor:pointer; border:1px solid; ' + styleBtn + '">' + escapeHtml(unit) + '</button>';
+       });
+       
+       html += '</div></div>';
+    }
+
+    if (terpotong) {
+      html += '<div class="sugest-hint" style="margin-top:10px; background:#ffebed; color:#d72d3b; border:1px solid #f5c2c7;">📌 Menampilkan ' + list.length + ' dari ' + total + ' hasil. Harap gunakan filter unit di atas atau ketik nama lebih lengkap.</div>';
     }
     sugestList.innerHTML = html;
+  }
+
+  function pilihUnitFilter(unit) {
+    currentUnitFilter = unit;
+    const q = document.getElementById('inputSearch').value.trim();
+    if (q) {
+      cariKandidat(q, unit);
+    }
   }
 
   function pilihKandidat(row) {
