@@ -1071,6 +1071,12 @@
     });
   }
 
+  function escapeAttr(s) {
+    return String(s).replace(/[&<>"']/g, function(c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
   (async function preloadEval() {
     const body = await apiCall('eval_flag', {});
     if (body && body.success && body.data) {
