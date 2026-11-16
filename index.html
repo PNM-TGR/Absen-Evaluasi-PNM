@@ -51,21 +51,19 @@
   .search-hint { margin-top: 10px; padding: 10px 12px; background: var(--primary-light); border-radius: 10px; font-size: 11.5px; color: var(--primary-dark); line-height: 1.5; }
   .sugest-list { margin-top: 12px; max-height: 420px; overflow-y: auto; }
   .sugest-item {
-    padding: 14px 16px; border: 1.5px solid var(--border); border-radius: 14px;
-    margin-bottom: 10px; cursor: pointer; background: white; transition: 0.15s;
-    display: flex; align-items: flex-start; gap: 12px;
+    padding: 10px 12px; border: 1.5px solid var(--border); border-radius: 12px;
+    margin-bottom: 8px; cursor: pointer; background: white; transition: 0.15s;
+    display: flex; align-items: flex-start; gap: 10px;
   }
-  .sugest-item:hover, .sugest-item:active { border-color: var(--primary); background: var(--primary-light); transform: translateY(-1px); }
   .sugest-avatar {
-    flex-shrink: 0; width: 42px; height: 42px;
+    flex-shrink: 0; width: 36px; height: 36px;
     background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-    color: white; border-radius: 12px; display: flex; align-items: center; justify-content: center;
-    font-size: 18px; font-weight: 800;
+    color: white; border-radius: 10px; display: flex; align-items: center; justify-content: center;
+    font-size: 16px; font-weight: 800;
   }
-  .sugest-body { flex: 1; min-width: 0; }
-  .sugest-nama { font-size: 15px; font-weight: 800; color: #24476c; margin-bottom: 4px; line-height: 1.3; }
-  .sugest-unit { font-size: 12.5px; color: #5d7088; margin-bottom: 4px; }
-  .sugest-periode { font-size: 11.5px; color: var(--primary); font-weight: 700; }
+  .sugest-nama { font-size: 14px; font-weight: 800; color: #24476c; margin-bottom: 3px; line-height: 1.3; }
+  .sugest-unit { font-size: 11.5px; color: #5d7088; margin-bottom: 3px; }
+  .sugest-periode { font-size: 11px; color: var(--primary); font-weight: 700; }
   .sugest-hint { padding: 12px; background: #f8fafc; border-radius: 12px; font-size: 12px; color: #7b8da4; text-align: center; line-height: 1.5; }
   .loading-box { padding: 40px 20px; text-align: center; color: var(--muted); font-size: 13px; }
   .spinner { display: inline-block; width: 28px; height: 28px; border: 3px solid #dbe6f0; border-top-color: var(--primary); border-radius: 50%; animation: spin 0.7s linear infinite; margin-bottom: 12px; }
@@ -196,9 +194,9 @@
     <!-- ═══ STATE 1: SEARCH ═══ -->
     <div id="stateSearch">
       <div class="card">
-        <label class="search-label">🔍 Nama lengkap atau unit (min 2 huruf)</label>
-        <input type="text" id="inputSearch" class="search-input" placeholder="Ketik nama atau unit TL..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
-        <div class="search-hint">ℹ️ Coba ketik lebih lengkap nama atau lokasi TL. Jika tidak ada, hubungi PIC Interview kamu.</div>
+        <label class="search-label">🔍 Cari Nama Anda</label>
+        <input type="text" id="inputSearch" class="search-input" placeholder="🔍 Ketik minimal 2 huruf nama Anda..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+        <div class="search-hint">💡 <b>Halo!</b> Silakan ketik nama depan atau belakang Anda. Sistem akan mencarikan data Anda. Jika tidak ada, hubungi PIC Interview kamu.</div>
         <div id="sugestBox" class="hidden">
           <div id="sugestList" class="sugest-list"></div>
         </div>
@@ -210,7 +208,10 @@
       <div class="card">
         <div class="konfirmasi-header">
           <div class="konfirmasi-icon">✓</div>
-          <div class="konfirmasi-title">Konfirmasi Absen</div>
+          <div class="konfirmasi-title">Konfirmasi Data Diri</div>
+          <div style="font-size:12.5px; color:#d72d3b; font-weight:700; margin-top:8px; background:#ffebed; padding:8px 12px; border-radius:8px; display:inline-block;">
+            ⚠️ Apakah data di bawah ini benar milik Anda?
+          </div>
         </div>
         <div class="info-row"><div class="info-label">👤 Nama</div><div class="info-value" id="konfNama">—</div></div>
         <div class="info-row"><div class="info-label">📅 Tgl Interview</div><div class="info-value" id="konfTglInterview">—</div></div>
@@ -221,7 +222,7 @@
 
         <label class="search-label" style="margin-top:16px;">📱 No WA Kamu (verifikasi):</label>
         <input type="tel" id="inputWA" class="wa-input" placeholder="08xxxxxxxxxx" inputmode="numeric" autocomplete="off">
-        <div class="wa-hint">Masukkan No WA yang kamu daftarkan saat melamar</div>
+        <div class="wa-hint">💡 <b>Penting:</b> Gunakan nomor WA yang aktif dan sama dengan yang kamu berikan ke PIC saat mendaftar.</div>
         <div id="konfError" class="error-box hidden mt-3"></div>
 
         <button class="btn btn-primary" onclick="bukaModalJenis()" style="margin-top:18px;">🎯 ABSEN TES LAPANGAN</button>
@@ -461,6 +462,21 @@
   function renderSugest(list, total, terpotong) {
     hasilSearchTerakhir = list;
     let html = '';
+    
+    // ═══ INFORMASI JUMLAH HASIL (Selalu muncul jika ada data) ═══
+    if (list.length > 0) {
+      let pesanInfo = '<b>Ditemukan ' + total + ' nama.</b> Geser layar jika nama Anda ada di bawah.';
+      let gayaInfo = 'margin-bottom:10px; background:#eaf4ff; color:#07579f; border:1px solid #a8caf0;';
+      
+      // Jika lebih dari 1, tekankan agar teliti
+      if (list.length > 1) {
+        pesanInfo = '<b>⚠️ Ada ' + total + ' nama yang cocok.</b><br>Geser layar dan pastikan Unit serta Jadwal TL sudah sesuai dengan Anda.';
+        gayaInfo = 'margin-bottom:10px; background:#fff5df; color:#bd7900; border:1px solid #f5d78e;';
+      }
+      
+      html += '<div class="sugest-hint" style="' + gayaInfo + '">' + pesanInfo + '</div>';
+    }
+    
     list.forEach(function(k) {
       const inisial = String(k.nama || '?').charAt(0).toUpperCase();
       html += '<div class="sugest-item" onclick="pilihKandidat(' + k.row + ')">' +
@@ -472,8 +488,9 @@
         '<div class="sugest-periode">📅 TL: ' + escapeHtml(k.periodeTampil || '-') + '</div>' +
         '</div></div>';
     });
+    
     if (terpotong && total > list.length) {
-      html += '<div class="sugest-hint">📌 Ada ' + total + ' hasil. Persempit pencarian dengan tambahkan nama atau unit TL.</div>';
+      html += '<div class="sugest-hint">📌 Menampilkan ' + list.length + ' dari ' + total + ' hasil. Persempit pencarian dengan menambahkan nama atau unit TL.</div>';
     }
     sugestList.innerHTML = html;
   }
