@@ -254,7 +254,7 @@
           <div class="berkas-item">☐ CV + Surat Lamaran</div>
           <div class="berkas-item">☐ Form Lamaran Kerja</div>
           <div class="berkas-item">☐ Surat Jaminan Orang Tua/Wali</div>
-          <div class="berkas-item">☐ Foto Keluarga</div>
+          <div class="berkas-item">☐ Foto Keluarga + Surat Jaminan + KTP</div>
           <a class="berkas-link" href="https://drive.google.com/drive/folders/1-Kki3d6A0jSItJSEe-C8DDYTVge5SVBW" target="_blank">📄 Download Form Lamaran & Surat Jaminan →</a>
         </div>
         <button class="btn btn-wa hidden" id="btnChatPic" onclick="chatPicTL()">💬 Chat PIC TL</button>
@@ -667,16 +667,19 @@
     if (res.hariKe === 'H1') {
       kelas = 'h1'; emoji = '🌅';
       judulP = 'Selamat datang, ' + nama + '!';
-      subP = 'Hari pertama selalu paling berkesan.<br>Semangat ya — tunjukin versi terbaik kamu hari ini.';
+      subP = 'Hari pertama selalu paling berkesan.<br>Semangat ya — tunjukin versi terbaik kamu hari ini.' +
+             '<br><br><i style="opacity:0.9; font-size:14px;">💡 Jangan lupa catat hal-hal penting dan jangan malu untuk banyak bertanya ya!</i>';
       berkas.classList.remove('hidden');
     } else if (res.hariKe === 'H2') {
       kelas = 'h2'; emoji = '💪';
       judulP = 'Setengah jalan, ' + nama + '!';
-      subP = 'Dua hari sudah kamu lewati.<br>Jangan kendor ya — sedikit lagi, terus maju.';
+      subP = 'Dua hari sudah kamu lewati.<br>Jangan kendor ya — sedikit lagi, terus maju.' +
+             '<br><br><i style="opacity:0.9; font-size:14px;">📝 Terus catat materi baru dan tanyakan hal yang belum kamu pahami ke mentor.</i>';
     } else if (res.hariKe === 'H3') {
       kelas = 'h3'; emoji = '🎯';
       judulP = 'Hari terakhir, ' + nama + '!';
-      subP = 'Terima kasih sudah berjuang sampai di sini.<br>Apapun hasilnya nanti, kamu sudah memberi yang terbaik.';
+      subP = 'Terima kasih sudah berjuang sampai di sini.<br>Apapun hasilnya nanti, kamu sudah memberi yang terbaik.' +
+             '<br><br><i style="opacity:0.9; font-size:14px;">🎯 Tunjukkan performa terbaikmu di sesi penilaian KUM/SAO hari ini. Ini momen penentuan, berikan usaha maksimalmu!</i>';
     } else {
       kelas = 'selesai'; emoji = '🎉';
       judulP = 'Selamat, ' + nama + '!';
