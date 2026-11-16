@@ -663,23 +663,26 @@
     judul.classList.add('hidden');
     pesan.classList.add('hidden');
 
+    // Teks pengingat evaluasi (dipakai di semua H)
+    const reminderEval = '<br><br><div style="background:rgba(255,255,255,0.25); padding:10px; border-radius:10px; font-size:13px; font-weight:700; text-align:left;">📌 <b>PENGINGAT:</b> Jangan lupa buka kembali web ini nanti sore (mulai jam 15:00 WIB) untuk mengisi <b>Jurnal Evaluasi</b> harianmu ya!</div>';
+
     let kelas, emoji, judulP, subP;
     if (res.hariKe === 'H1') {
       kelas = 'h1'; emoji = '🌅';
       judulP = 'Selamat datang, ' + nama + '!';
       subP = 'Hari pertama selalu paling berkesan.<br>Semangat ya — tunjukin versi terbaik kamu hari ini.' +
-             '<br><br><i style="opacity:0.9; font-size:14px;">💡 Jangan lupa catat hal-hal penting dan jangan malu untuk banyak bertanya ya!</i>';
+             '<br><br><i style="opacity:0.9; font-size:14px;">💡 Jangan lupa catat hal-hal penting dan jangan malu untuk banyak bertanya ya!</i>' + reminderEval;
       berkas.classList.remove('hidden');
     } else if (res.hariKe === 'H2') {
       kelas = 'h2'; emoji = '💪';
       judulP = 'Setengah jalan, ' + nama + '!';
       subP = 'Dua hari sudah kamu lewati.<br>Jangan kendor ya — sedikit lagi, terus maju.' +
-             '<br><br><i style="opacity:0.9; font-size:14px;">📝 Terus catat materi baru dan tanyakan hal yang belum kamu pahami ke mentor.</i>';
+             '<br><br><i style="opacity:0.9; font-size:14px;">📝 Terus catat materi baru dan tanyakan hal yang belum kamu pahami ke mentor.</i>' + reminderEval;
     } else if (res.hariKe === 'H3') {
       kelas = 'h3'; emoji = '🎯';
       judulP = 'Hari terakhir, ' + nama + '!';
       subP = 'Terima kasih sudah berjuang sampai di sini.<br>Apapun hasilnya nanti, kamu sudah memberi yang terbaik.' +
-             '<br><br><i style="opacity:0.9; font-size:14px;">🎯 Tunjukkan performa terbaikmu di sesi penilaian KUM/SAO hari ini. Ini momen penentuan, berikan usaha maksimalmu!</i>';
+             '<br><br><i style="opacity:0.9; font-size:14px;">🎯 Tunjukkan performa terbaikmu di sesi penilaian KUM/SAO hari ini. Ini momen penentuan, berikan usaha maksimalmu!</i>' + reminderEval;
     } else {
       kelas = 'selesai'; emoji = '🎉';
       judulP = 'Selamat, ' + nama + '!';
