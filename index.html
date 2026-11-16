@@ -522,10 +522,20 @@
 
     const h1 = !!kandidatTerpilih.h1, h2 = !!kandidatTerpilih.h2, h3 = !!kandidatTerpilih.h3;
     let hariAktual = '—';
-    if (h1 && h2 && h3) hariAktual = '✅ TL Selesai';
-    else if (h1 && h2) hariAktual = 'H3 (Hari ke-3)';
-    else if (h1) hariAktual = 'H2 (Hari ke-2)';
-    else hariAktual = 'H1 (Hari ke-1)';
+    
+    // ═══ CEK DARI LOG ABSEN HARI INI ═══
+    if (kandidatTerpilih.hHariIni) {
+      hariAktual = '✅ Sudah Absen ' + kandidatTerpilih.hHariIni;
+    } else if (h1 && h2 && h3) {
+      hariAktual = '✅ TL Selesai';
+    } else if (h1 && h2) {
+      hariAktual = 'H3 (Belum Absen)';
+    } else if (h1) {
+      hariAktual = 'H2 (Belum Absen)';
+    } else {
+      hariAktual = 'H1 (Belum Absen)';
+    }
+    
     document.getElementById('konfHari').textContent = hariAktual;
 
     jenisTerpilih = 'hadir';
@@ -877,15 +887,21 @@
     const dd = String(today.getDate()).padStart(2, '0');
     document.getElementById('evalTgl').value = yyyy + '-' + mm + '-' + dd;
     
-    const h1 = !!kandidatTerpilih.h1, h2 = !!kandidatTerpilih.h2, h3 = !!kandidatTerpilih.h3;
-    let defaultH = 'Hari Pertama';
-    if (h1 && !h2) defaultH = 'Hari Kedua';
-    else if (h1 && h2 && !h3) defaultH = 'Hari Ketiga';
-    else if (h1 && h2 && h3) defaultH = 'Hari Ketiga';
-    
     const radiosHari = document.getElementsByName('evalHariKe');
     for (let i = 0; i < radiosHari.length; i++) {
-      if (radiosHari[i].value === defaultH) radiosHari[i].checked = true;
+      // 1. Matikan semua centang dulu
+      radiosHari[i].checked = false; 
+      
+      // 2. Nyalakan centang HANYA jika hari ini dia sudah absen
+      if (kandidatTerpilih.hHariIni === 'H1' && radiosHari[i].value === 'Hari Pertama') {
+        radiosHari[i].checked = true;
+      }
+      if (kandidatTerpilih.hHariIni === 'H2' && radiosHari[i].value === 'Hari Kedua') {
+        radiosHari[i].checked = true;
+      }
+      if (kandidatTerpilih.hHariIni === 'H3' && radiosHari[i].value === 'Hari Ketiga') {
+        radiosHari[i].checked = true;
+      }
     }
     
     document.getElementById('evalNamaMentor').value = '';
