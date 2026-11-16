@@ -946,14 +946,8 @@
       btn.textContent = '✓ Kirim Evaluasi';
 
       if (body.success) {
-        // (Biarkan logika pesan sukses dinamis H-3 Anda di sini)
-
-    btn.disabled = false;
-    btn.textContent = '✓ Kirim Evaluasi';
-
-    if (body.success) {
-      // ═══ LOGIKA PESAN DINAMIS (H-3 vs H-1/H-2) ═══
-      const pesanBox = document.getElementById('pesanSuksesEval');
+        // ═══ LOGIKA PESAN DINAMIS (H-3 vs H-1/H-2) ═══
+        const pesanBox = document.getElementById('pesanSuksesEval');
       
       if (hariKe === 'Hari Ketiga') {
         pesanBox.innerHTML = `
