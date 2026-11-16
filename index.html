@@ -297,7 +297,7 @@
 
         <label class="search-label">Hari ini kamu melaksanakan Tes Lapang hari ke berapa <span style="color:red">*</span></label>
         <div class="pilihan-box">
-          <label class="pilihan-item"><input type="radio" name="evalHariKe" value="Hari Pertama" checked> Hari Pertama</label>
+          <label class="pilihan-item"><input type="radio" name="evalHariKe" value="Hari Pertama"> Hari Pertama</label>
           <label class="pilihan-item"><input type="radio" name="evalHariKe" value="Hari Kedua"> Hari Kedua</label>
           <label class="pilihan-item"><input type="radio" name="evalHariKe" value="Hari Ketiga"> Hari Ketiga</label>
         </div>
@@ -977,6 +977,13 @@
     const errBox = document.getElementById('modalEvalError');
     
     errBox.classList.add('hidden');
+
+    if (!hariKe) {
+      errBox.textContent = '⚠️ Silakan pilih hari ke-berapa Tes Lapang hari ini (Hari Pertama/Kedua/Ketiga).';
+      errBox.classList.remove('hidden');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
 
     if (!namaMentor || !dipelajari || !kesan) {
       errBox.textContent = '⚠️ Nama Mentor, Yang Dipelajari, dan Kesan wajib diisi.';
