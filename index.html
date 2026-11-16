@@ -662,9 +662,6 @@
     // Teks pengingat evaluasi (dipakai di semua H)
     const reminderEval = '<br><br><div style="background:rgba(255,255,255,0.25); padding:10px; border-radius:10px; font-size:13px; font-weight:700; text-align:left;">📌 <b>PENGINGAT:</b> Jangan lupa buka kembali web ini nanti sore (mulai jam 15:00 WIB) untuk mengisi <b>Jurnal Evaluasi</b> harianmu ya!</div>';
 
-    // 1. WAJIB Dideklarasikan di sini biar tidak error
-    const reminderEval = '<br><br><div style="background:rgba(255,255,255,0.25); padding:10px; border-radius:10px; font-size:13px; font-weight:700; text-align:left;">📌 <b>PENGINGAT:</b> Jangan lupa buka kembali web ini nanti sore (mulai jam 15:00 WIB) untuk mengisi <b>Jurnal Evaluasi</b> harianmu ya!</div>';
-
     let kelas, emoji, judulP, subP;
     if (res.hariKe === 'H1') {
       kelas = 'h1'; emoji = '🌅';
@@ -956,51 +953,51 @@
       if (body.success) {
         // ═══ LOGIKA PESAN DINAMIS (H-3 vs H-1/H-2) ═══
         const pesanBox = document.getElementById('pesanSuksesEval');
-      
-      if (hariKe === 'Hari Ketiga') {
-        pesanBox.innerHTML = `
-          Selamat! Kamu sudah menyelesaikan hari terakhir Tes Lapangan. 🎉<br><br>
-          Terima kasih ya udah berjuang dan memberikan usaha terbaik sampai hari ke-3. Semoga hasilnya sesuai dengan yang diharapkan ya! 🤞<br><br>
-          Ditunggu info lebih lanjutnya dari PIC TL masing-masing.<br><br>
-          <span style="background:#fff5df; padding:10px; border-radius:8px; display:block; border:1px solid #f5d78e; color:#bd7900; font-size:13px; text-align:left;">
-            📌 <b>PENGINGAT BERKAS:</b><br>
-            Pastikan semua berkas persyaratan kamu (KTP, KK, Ijazah, dll) sudah lengkap dan diserahkan ke PIC hari ini ya.
-          </span>
-        `;
-      } else {
-        pesanBox.innerHTML = `
-          Jurnal evaluasi kamu hari ini sudah tersimpan di sistem.<br><br>
-          Terima kasih ya udah kerja keras dan semangat selama Tes Lapangan hari ini. Jangan lupa istirahat yang cukup buat besok ya! 💪🔥<br><br>
-          <span style="background:#fff5df; padding:10px; border-radius:8px; display:block; border:1px solid #f5d78e; color:#bd7900; font-size:13px; text-align:left;">
-            📌 <b>PENGINGAT BERKAS:</b><br>
-            Jangan lupa siapkan dan lengkapi berkas persyaratan kamu ya (KTP, KK, Ijazah, dll). Paling lambat dikumpulkan maksimal <b>Hari ke-3</b> Tes Lapangan.
-          </span>
-        `;
-      }
-      
-      document.getElementById('stateEvaluasi').classList.add('hidden');
-      document.getElementById('stateEvaluasiSelesai').classList.remove('hidden');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    } else {
-      if (body.kode === 'sudah_isi') {
-        // Munculkan konfirmasi
-        if (confirm('⚠️ ' + body.message)) {
-          // Jika klik OK/Ya, kirim ulang dengan flag overwrite=true
-          doSubmit(true);
+        
+        if (hariKe === 'Hari Ketiga') {
+          pesanBox.innerHTML = `
+            Selamat! Kamu sudah menyelesaikan hari terakhir Tes Lapangan. 🎉<br><br>
+            Terima kasih ya udah berjuang dan memberikan usaha terbaik sampai hari ke-3. Semoga hasilnya sesuai dengan yang diharapkan ya! 🤞<br><br>
+            Ditunggu info lebih lanjutnya dari PIC TL masing-masing.<br><br>
+            <span style="background:#fff5df; padding:10px; border-radius:8px; display:block; border:1px solid #f5d78e; color:#bd7900; font-size:13px; text-align:left;">
+              📌 <b>PENGINGAT BERKAS:</b><br>
+              Pastikan semua berkas persyaratan kamu (KTP, KK, Ijazah, dll) sudah lengkap dan diserahkan ke PIC hari ini ya.
+            </span>
+          `;
+        } else {
+          pesanBox.innerHTML = `
+            Jurnal evaluasi kamu hari ini sudah tersimpan di sistem.<br><br>
+            Terima kasih ya udah kerja keras dan semangat selama Tes Lapangan hari ini. Jangan lupa istirahat yang cukup buat besok ya! 💪🔥<br><br>
+            <span style="background:#fff5df; padding:10px; border-radius:8px; display:block; border:1px solid #f5d78e; color:#bd7900; font-size:13px; text-align:left;">
+              📌 <b>PENGINGAT BERKAS:</b><br>
+              Jangan lupa siapkan dan lengkapi berkas persyaratan kamu ya (KTP, KK, Ijazah, dll). Paling lambat dikumpulkan maksimal <b>Hari ke-3</b> Tes Lapangan.
+            </span>
+          `;
         }
-      } 
-      // Jika error karena belum absen, belum jam 15:00, atau kadaluarsa
-      else if (['belum_absen', 'belum_jam', 'kadaluarsa'].includes(body.kode)) {
+        
         document.getElementById('stateEvaluasi').classList.add('hidden');
-        document.getElementById('stateKonfirmasi').classList.remove('hidden');
+        document.getElementById('stateEvaluasiSelesai').classList.remove('hidden');
         window.scrollTo({ top: 0, behavior: 'smooth' });
-        alert('❌ ' + body.message);
       } else {
-        errBox.textContent = '❌ ' + (body.message || 'Gagal mengirim evaluasi.');
-        errBox.classList.remove('hidden');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        if (body.kode === 'sudah_isi') {
+          // Munculkan konfirmasi
+          if (confirm('⚠️ ' + body.message)) {
+            // Jika klik OK/Ya, kirim ulang dengan flag overwrite=true
+            doSubmit(true);
+          }
+        } 
+        // Jika error karena belum absen, belum jam 15:00, atau kadaluarsa
+        else if (['belum_absen', 'belum_jam', 'kadaluarsa'].includes(body.kode)) {
+          document.getElementById('stateEvaluasi').classList.add('hidden');
+          document.getElementById('stateKonfirmasi').classList.remove('hidden');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          alert('❌ ' + body.message);
+        } else {
+          errBox.textContent = '❌ ' + (body.message || 'Gagal mengirim evaluasi.');
+          errBox.classList.remove('hidden');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
       }
-    }
     } // Tutup fungsi doSubmit
 
     // Panggil fungsi pertama kali
