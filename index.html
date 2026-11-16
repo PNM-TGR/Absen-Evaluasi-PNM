@@ -246,16 +246,12 @@
         <div id="hasilWarning" class="warning-box hidden"></div>
         <div id="hasilInfo" class="info-box hidden"></div>
         <div id="hasilData" class="data-box hidden"></div>
-        <div id="hasilBerkas" class="berkas-box hidden">
-          <div class="berkas-title">📋 PENGINGAT BERKAS</div>
-          <div class="berkas-item">☐ KTP</div>
-          <div class="berkas-item">☐ KK</div>
-          <div class="berkas-item">☐ Ijazah / SKL</div>
-          <div class="berkas-item">☐ CV + Surat Lamaran</div>
-          <div class="berkas-item">☐ Form Lamaran Kerja</div>
-          <div class="berkas-item">☐ Surat Jaminan Orang Tua/Wali</div>
-          <div class="berkas-item">☐ Foto Keluarga + Surat Jaminan + KTP</div>
-          <a class="berkas-link" href="https://drive.google.com/drive/folders/1-Kki3d6A0jSItJSEe-C8DDYTVge5SVBW" target="_blank">📄 Download Form Lamaran & Surat Jaminan →</a>
+        <div id="hasilBerkas" class="berkas-box hidden" style="background: #f8fafc; border: 1px solid #e5eaf0; padding: 12px; border-radius: 10px; text-align: left; font-size: 12px; color: #5d7088; line-height: 1.6; margin-top: 10px;">
+          <div style="font-weight: 800; color: #24476c; margin-bottom: 6px;">📋 Pengingat Berkas:</div>
+          <div style="margin-bottom: 8px;">
+            KTP, KK, Ijazah/SKL, CV + Surat Lamaran, Form Lamaran Kerja, Surat Jaminan Orang Tua/Wali, serta <b>Foto Keluarga (Ortu/Wali memegang Surat Jaminan & KTP)</b>.
+          </div>
+          <a class="berkas-link" href="https://drive.google.com/drive/folders/1-Kki3d6A0jSItJSEe-C8DDYTVge5SVBW" target="_blank" style="display: inline-block; font-weight: 800; color: var(--primary); text-decoration: underline;">📄 Download Form Lamaran & Surat Jaminan →</a>
         </div>
         <button class="btn btn-wa hidden" id="btnChatPic" onclick="chatPicTL()">💬 Chat PIC TL</button>
         <button class="btn btn-secondary" id="btnMulaiLagi" onclick="mulaiLagi()">← Absen Kandidat Lain</button>
@@ -666,13 +662,15 @@
     // Teks pengingat evaluasi (dipakai di semua H)
     const reminderEval = '<br><br><div style="background:rgba(255,255,255,0.25); padding:10px; border-radius:10px; font-size:13px; font-weight:700; text-align:left;">📌 <b>PENGINGAT:</b> Jangan lupa buka kembali web ini nanti sore (mulai jam 15:00 WIB) untuk mengisi <b>Jurnal Evaluasi</b> harianmu ya!</div>';
 
+    // 1. WAJIB Dideklarasikan di sini biar tidak error
+    const reminderEval = '<br><br><div style="background:rgba(255,255,255,0.25); padding:10px; border-radius:10px; font-size:13px; font-weight:700; text-align:left;">📌 <b>PENGINGAT:</b> Jangan lupa buka kembali web ini nanti sore (mulai jam 15:00 WIB) untuk mengisi <b>Jurnal Evaluasi</b> harianmu ya!</div>';
+
     let kelas, emoji, judulP, subP;
     if (res.hariKe === 'H1') {
       kelas = 'h1'; emoji = '🌅';
       judulP = 'Selamat datang, ' + nama + '!';
       subP = 'Hari pertama selalu paling berkesan.<br>Semangat ya — tunjukin versi terbaik kamu hari ini.' +
              '<br><br><i style="opacity:0.9; font-size:14px;">💡 Jangan lupa catat hal-hal penting dan jangan malu untuk banyak bertanya ya!</i>' + reminderEval;
-      berkas.classList.remove('hidden');
     } else if (res.hariKe === 'H2') {
       kelas = 'h2'; emoji = '💪';
       judulP = 'Setengah jalan, ' + nama + '!';
@@ -688,9 +686,13 @@
       judulP = 'Selamat, ' + nama + '!';
       subP = 'TL kamu sudah selesai.<br>Istirahat dulu ya. Hasilnya akan segera kami kabari via WhatsApp.';
     }
+    
     penyemangatEl.className = 'penyemangat ' + kelas;
     penyemangatEl.innerHTML = '<span class="emoji">' + emoji + '</span><div class="judul">' + judulP + '</div><div class="sub">' + subP + '</div>';
     penyemangatEl.classList.remove('hidden');
+
+    // 2. Pindahkan ke luar if/else agar Pengingat Berkas selalu muncul di H1, H2, H3
+    berkas.classList.remove('hidden');
 
     hBadge.classList.remove('hidden');
     document.getElementById('hBadgeH1').className = 'h-badge' + (res.h1 ? ' aktif' : '');
