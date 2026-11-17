@@ -122,6 +122,10 @@
   .berkas-item { font-size: 12.5px; color: #5d7088; padding: 3px 0; line-height: 1.5; }
   .berkas-link { display: inline-block; color: var(--primary); font-weight: 700; text-decoration: underline; font-size: 12px; margin-top: 8px; }
   .hidden { display: none !important; }
+  .unit-chip { padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; cursor: pointer; border: 1px solid; transition: 0.1s; }
+  .unit-chip.active { background: #07579f !important; color: white !important; border-color: #07579f !important; }
+  .unit-chip:not(.active) { background: white; color: #526a84; border-color: #dce5ee; }
+  .unit-chip:not(.active):hover { background: #f0f6fc; }
   .mt-3 { margin-top: 16px; }
   .error-box { background: var(--red-light); border: 1.5px solid #f5c2c7; border-radius: 12px; padding: 14px; margin-bottom: 16px; font-size: 13px; color: var(--red); line-height: 1.6; }
   .footer { text-align: center; padding: 24px 16px; font-size: 11px; color: #97a8ba; line-height: 1.6; }
@@ -509,14 +513,12 @@
        html += '<div style="display:flex; flex-wrap:wrap; gap:6px;">';
        
        // Tombol "Semua Unit" (Reset)
-       let styleAktif = currentUnitFilter === '' ? 'background:#07579f; color:white; border-color:#07579f;' : 'background:#f8fafc; color:#526a84; border-color:#e5eaf0;';
-       html += '<button onclick="pilihUnitFilter(\'\')" style="padding:6px 12px; border-radius:20px; font-size:11px; font-weight:700; cursor:pointer; border:1px solid; ' + styleAktif + '">Semua Unit</button>';
+       html += '<button class="unit-chip ' + (currentUnitFilter === '' ? 'active' : '') + '" onclick="pilihUnitFilter(\'\')">Semua Unit</button>';
        
        // Tombol Unit Lainnya
        unitList.forEach(function(unit) {
           let isAktif = (currentUnitFilter === unit);
-          let styleBtn = isAktif ? 'background:#07579f; color:white; border-color:#07579f;' : 'background:white; color:#526a84; border-color:#dce5ee;';
-          html += '<button onclick="pilihUnitFilter(\'' + escapeAttr(unit) + '\')" style="padding:6px 12px; border-radius:20px; font-size:11px; font-weight:700; cursor:pointer; border:1px solid; ' + styleBtn + '">' + escapeHtml(unit) + '</button>';
+          html += '<button class="unit-chip ' + (isAktif ? 'active' : '') + '" onclick="pilihUnitFilter(\'' + escapeAttr(unit) + '\')">' + escapeHtml(unit) + '</button>';
        });
        
        html += '</div></div>';
@@ -532,6 +534,7 @@
     currentUnitFilter = unit;
     const q = document.getElementById('inputSearch').value.trim();
     if (q) {
+      sugestList.innerHTML = '<div class="loading-box"><div class="spinner"></div><div>Menyaring unit...</div></div>';
       cariKandidat(q, unit);
     }
   }
@@ -620,7 +623,9 @@
   }
 
   async function submitJenis() {
-    const noWA = document.getElementById('inputWA').value.trim();
+    let noWARaw = document.getElementById('inputWA').value.trim();
+    const noWA = noWARaw.replace(/\D/g, ''); // Poin 4: Auto-format WA
+    
     const keterangan = document.getElementById('inputKeterangan').value.trim();
     const errBox = document.getElementById('modalJenisError');
     errBox.classList.add('hidden');
@@ -630,6 +635,13 @@
       errBox.textContent = '⚠️ Alasan wajib diisi untuk izin/sakit.';
       errBox.classList.remove('hidden');
       return;
+    }
+
+    // Poin 3: Konfirmasi Izin/Sakit
+    if (jenisTerpilih === 'izin' || jenisTerpilih === 'sakit') {
+      if (!confirm('⚠️ Anda yakin melapor ' + jenisTerpilih.toUpperCase() + '?\n\nJika ini salah klik, Anda harus mengulang Tes Lapangan dari Hari Pertama.')) {
+        return;
+      }
     }
 
     const btn = document.getElementById('btnSubmitJenis');
@@ -896,6 +908,13 @@
 
   function klikEvaluasiTL() {
     if (!kandidatTerpilih) return;
+
+    // Poin 5: Cegat jika sebelum jam 15:00
+    const currentHour = new Date().getHours();
+    if (currentHour < 15) {
+      alert('⚠️ Evaluasi baru bisa diisi setelah jam 15:00 WIB.');
+      return;
+    }
     
     let lokasiLengkap = kandidatTerpilih.unitTL || '-';
     // Jika data dari sheet belum ada tanda "|", gabungkan dengan Area
@@ -943,6 +962,56 @@
     document.getElementById('evalJamPulang').value = '';
     document.getElementById('modalEvalError').classList.add('hidden');
     
+    // Poin 6: Load Auto-Save Draft — desain C
+    const draftKey = 'eval_draft_' + kandidatTerpilih.waNorm;
+    const draftStr = localStorage.getItem(draftKey);
+    if (draftStr) {
+      try {
+        const d = JSON.parse(draftStr);
+        const draftDate = d.savedAt ? new Date(d.savedAt) : null;
+        const draftDateValid = draftDate && !isNaN(draftDate.getTime());
+
+        const labelDraft = draftDateValid
+          ? draftDate.toLocaleString('id-ID', {
+              weekday: 'short', day: 'numeric', month: 'short',
+              hour: '2-digit', minute: '2-digit', hour12: false
+            }).replace(/,/g, ' ·')
+          : 'waktu tidak diketahui';
+
+        const bukanHariIni = draftDateValid &&
+          draftDate.toDateString() !== new Date().toDateString();
+
+        const warningDraft = bukanHariIni
+          ? '\n\n⚠️ Isian ini dari hari sebelumnya (' + labelDraft + ').'
+          : '';
+
+        const lanjut = confirm(
+          '📝 Ditemukan isian sebelumnya dari [' + labelDraft + ']. Lanjutkan?' +
+          warningDraft +
+          '\n\nOK = Lanjutkan\nCancel = Mulai Baru (hapus draft)'
+        );
+
+        if (!lanjut) {
+          localStorage.removeItem(draftKey);
+        } else {
+          if (d.tglTL) document.getElementById('evalTgl').value = d.tglTL;
+          if (d.namaMentor) document.getElementById('evalNamaMentor').value = d.namaMentor;
+          if (d.noMentor) document.getElementById('evalNoMentor').value = d.noMentor;
+          if (d.dipelajari) document.getElementById('evalDipelajari').value = d.dipelajari;
+          if (d.kesan) document.getElementById('evalKesan').value = d.kesan;
+          if (d.jamPulang) document.getElementById('evalJamPulang').value = d.jamPulang;
+          if (d.saran) document.getElementById('evalSaran').value = d.saran;
+
+          if (d.hariKe) { const r = document.querySelector(`input[name="evalHariKe"][value="${d.hariKe}"]`); if (r) r.checked = true; }
+          if (d.yakin) { const r = document.querySelector(`input[name="evalYakin"][value="${d.yakin}"]`); if (r) r.checked = true; }
+          if (d.ortu) { const r = document.querySelector(`input[name="evalOrtu"][value="${d.ortu}"]`); if (r) r.checked = true; }
+          if (d.ikut) { const r = document.querySelector(`input[name="evalIkut"][value="${d.ikut}"]`); if (r) r.checked = true; }
+        }
+      } catch (e) {
+        localStorage.removeItem(draftKey);
+      }
+    }
+    
     const btn = document.getElementById('btnSubmitEval');
     btn.disabled = false;
     btn.textContent = '✓ Kirim Evaluasi';
@@ -983,6 +1052,16 @@
       errBox.classList.remove('hidden');
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
+    }
+
+    // Poin 7: Peringatan Jam Pulang
+    if (jamPulang) {
+      const jamAngka = parseInt(jamPulang.split(':')[0], 10);
+      if (jamAngka < 15 || jamAngka >= 22) {
+        if (!confirm('⚠️ Anda yakin pulang jam ' + jamPulang + '? Pastikan tidak salah ketik ya.')) {
+          return;
+        }
+      }
     }
 
     if (!namaMentor || !dipelajari || !kesan) {
@@ -1043,6 +1122,9 @@
           `;
         }
         
+        // Poin 6: Hapus Draft setelah sukses
+        localStorage.removeItem('eval_draft_' + kandidatTerpilih.waNorm);
+
         document.getElementById('stateEvaluasi').classList.add('hidden');
         document.getElementById('stateEvaluasiSelesai').classList.remove('hidden');
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1070,6 +1152,34 @@
 
     // Panggil fungsi pertama kali
     doSubmit(false);
+  }
+
+  // Poin 6: Fungsi Auto-Save Draft Evaluasi
+  function simpanDraftEval() {
+    if (!kandidatTerpilih) return;
+    const getVal = (name) => { const el = document.querySelector(`input[name="${name}"]:checked`); return el ? el.value : ''; };
+    const draft = {
+      tglTL: document.getElementById('evalTgl').value,
+      namaMentor: document.getElementById('evalNamaMentor').value,
+      noMentor: document.getElementById('evalNoMentor').value,
+      dipelajari: document.getElementById('evalDipelajari').value,
+      kesan: document.getElementById('evalKesan').value,
+      jamPulang: document.getElementById('evalJamPulang').value,
+      saran: document.getElementById('evalSaran').value,
+      hariKe: getVal('evalHariKe'),
+      yakin: getVal('evalYakin'),
+      ortu: getVal('evalOrtu'),
+      ikut: getVal('evalIkut'),
+      savedAt: new Date().toISOString()
+    };
+    localStorage.setItem('eval_draft_' + kandidatTerpilih.waNorm, JSON.stringify(draft));
+  }
+
+  // Daftarkan Event Listener untuk Auto-Save
+  const elEvalForm = document.getElementById('stateEvaluasi');
+  if (elEvalForm) {
+    elEvalForm.addEventListener('input', simpanDraftEval);
+    elEvalForm.addEventListener('change', simpanDraftEval);
   }
 
   function escapeHtml(s) {
