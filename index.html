@@ -930,12 +930,8 @@
     }
     document.getElementById('evalLokasi').value = lokasiLengkap;
     document.getElementById('evalPosisi').value = kandidatTerpilih.posisi || 'Account Officer (AO) / Staff Lapangan';
-    // Isi otomatis dengan tanggal hari ini (format YYYY-MM-DD untuk input type="date")
-    const today = new Date();
-    const yyyy = today.getFullYear();
-    const mm = String(today.getMonth() + 1).padStart(2, '0');
-    const dd = String(today.getDate()).padStart(2, '0');
-    document.getElementById('evalTgl').value = yyyy + '-' + mm + '-' + dd;
+    // Biarkan kosong, user wajib isi manual sesuai tanggal absen
+    document.getElementById('evalTgl').value = '';
     
     const radiosHari = document.getElementsByName('evalHariKe');
     for (let i = 0; i < radiosHari.length; i++) {
@@ -1145,7 +1141,16 @@
         } else {
           errBox.textContent = '❌ ' + (body.message || 'Gagal mengirim evaluasi.');
           errBox.classList.remove('hidden');
-          window.scrollTo({ top: 0, behavior: 'smooth' });
+          
+          // Jika error karena tanggal, arahkan layar ke kotak merah dan fokuskan kursor ke input tanggal
+          if (['tgl_kosong', 'tgl_tidak_cocok', 'tgl_error_sistem'].includes(body.kode)) {
+            setTimeout(function() {
+              errBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              document.getElementById('evalTgl').focus();
+            }, 100);
+          } else {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }
         }
       }
     } // Tutup fungsi doSubmit
