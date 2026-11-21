@@ -236,11 +236,14 @@
           • Sore (>15:00): Klik tombol <b>📝 EVALUASI</b> (pastikan sudah absen hari ini).
         </div>
 
+        <!-- Badge status TL (belum mulai / selesai) -->
+        <div id="badgeTL" class="hidden" style="margin-top:14px; padding:12px 14px; background:#fff5df; border:1.5px solid #f5d78e; border-radius:12px; font-size:13px; color:#bd7900; line-height:1.5; text-align:center;"></div>
+
         <!-- Tombol Kiri Kanan -->
         <div style="display: flex; gap: 8px; margin-top: 4px;">
-          <button class="btn btn-primary" onclick="bukaModalJenis()" style="flex: 1; margin-top: 0; padding: 0 10px; font-size: 13px;">🎯 ABSEN</button>
-          
-          <button class="btn" onclick="klikEvaluasiTL()" style="flex: 1; margin-top: 0; padding: 0 10px; font-size: 13px; background:#fff; border:1.5px solid #07579f; color:#07579f; height: 54px; border-radius: 14px; font-weight: 800; display: flex; align-items: center; justify-content: center;">📝 EVALUASI</button>
+          <button class="btn btn-primary" id="btnAbsen" onclick="bukaModalJenis()" style="flex: 1; margin-top: 0; padding: 0 10px; font-size: 13px;">🎯 ABSEN</button>
+
+          <button class="btn" id="btnEvaluasi" onclick="klikEvaluasiTL()" style="flex: 1; margin-top: 0; padding: 0 10px; font-size: 13px; background:#fff; border:1.5px solid #07579f; color:#07579f; height: 54px; border-radius: 14px; font-weight: 800; display: flex; align-items: center; justify-content: center;">📝 EVALUASI</button>
         </div>
 
         <!-- Tombol Batal -->
@@ -571,6 +574,48 @@
     }
     
     document.getElementById('konfHari').textContent = hariAktual;
+
+    // ═══ CEK STATUS TL (belum mulai / aktif / selesai) ═══
+    const badgeTL = document.getElementById('badgeTL');
+    const btnAbsen = document.getElementById('btnAbsen');
+    const btnEvaluasi = document.getElementById('btnEvaluasi');
+
+    // Reset dulu
+    if (badgeTL) badgeTL.classList.add('hidden');
+    if (btnAbsen) btnAbsen.disabled = false;
+    if (btnEvaluasi) btnEvaluasi.disabled = false;
+    if (btnAbsen) btnAbsen.style.opacity = '1';
+    if (btnEvaluasi) btnEvaluasi.style.opacity = '1';
+    if (btnAbsen) btnAbsen.style.cursor = 'pointer';
+    if (btnEvaluasi) btnEvaluasi.style.cursor = 'pointer';
+
+    const statusTL = kandidatTerpilih.statusTL || 'aktif';
+
+    if (statusTL === 'belum_mulai') {
+      // TL belum mulai — disable kedua tombol
+      const selisih = kandidatTerpilih.selisihHari || 0;
+      const labelSelisih = selisih === 1 ? 'besok' : (selisih + ' hari lagi');
+      const tglMulaiTampil = kandidatTerpilih.tglMulaiTL || '-';
+
+      if (badgeTL) {
+        badgeTL.innerHTML =
+          '⏰ <b>TL BELUM MULAI</b> — ' + labelSelisih + '<br>' +
+          '<span style="font-size:11px; font-weight:500;">Mulai: ' + tglMulaiTampil + '</span>';
+        badgeTL.classList.remove('hidden');
+      }
+      if (btnAbsen) { btnAbsen.disabled = true; btnAbsen.style.opacity = '0.4'; btnAbsen.style.cursor = 'not-allowed'; }
+      if (btnEvaluasi) { btnEvaluasi.disabled = true; btnEvaluasi.style.opacity = '0.4'; btnEvaluasi.style.cursor = 'not-allowed'; }
+
+    } else if (statusTL === 'selesai') {
+      // TL sudah selesai — disable ABSEN, EVALUASI tetap aktif (untuk tertunda)
+      if (badgeTL) {
+        badgeTL.innerHTML = '✅ <b>TL SUDAH SELESAI</b><br>' +
+          '<span style="font-size:11px; font-weight:500;">Evaluasi tertunda masih bisa diisi (H+2)</span>';
+        badgeTL.classList.remove('hidden');
+      }
+      if (btnAbsen) { btnAbsen.disabled = true; btnAbsen.style.opacity = '0.4'; btnAbsen.style.cursor = 'not-allowed'; }
+      if (btnEvaluasi) { btnEvaluasi.disabled = false; }
+    }
 
     jenisTerpilih = 'hadir';
     document.getElementById('inputWA').value = '';
@@ -909,73 +954,78 @@
   function klikEvaluasiTL() {
     if (!kandidatTerpilih) return;
 
-    // Poin 5: Cegat jika sebelum jam 15:00
-    const currentHour = new Date().getHours();
-    if (currentHour < 15) {
-      alert('⚠️ Evaluasi baru bisa diisi setelah jam 15:00 WIB.');
+    // ═══ 1. CEGAT TL BELUM MULAI (prioritas tertinggi) ═══
+    if (kandidatTerpilih.statusTL === 'belum_mulai') {
+      const selisih = kandidatTerpilih.selisihHari || 0;
+      const labelSelisih = selisih === 1 ? 'besok' : (selisih + ' hari lagi');
+      const tglMulai = kandidatTerpilih.tglMulaiTL || '-';
+      const unitTL = kandidatTerpilih.unitTL || '-';
+
+      alert(
+        '⚠️ TL BELUM MULAI\n\n' +
+        'TL kamu di Unit ' + unitTL + ' baru dimulai ' + labelSelisih + '.\n' +
+        '(Tanggal mulai: ' + tglMulai + ')\n\n' +
+        'Evaluasi baru bisa diisi setelah TL dimulai dan kamu sudah absen hari itu.'
+      );
       return;
     }
-    
-    let lokasiLengkap = kandidatTerpilih.unitTL || '-';
-    // Jika data dari sheet belum ada tanda "|", gabungkan dengan Area
-    if (kandidatTerpilih.area && lokasiLengkap.indexOf('|') === -1) {
-      let namaArea = kandidatTerpilih.area;
-      
-      // Cek jika belum ada kata "Area" di depannya, baru tambahkan
-      if (!namaArea.toLowerCase().startsWith('area ')) {
-        namaArea = 'Area ' + namaArea;
-      }
-      
-      lokasiLengkap = namaArea + ' | ' + lokasiLengkap;
-    }
-    document.getElementById('evalLokasi').value = lokasiLengkap;
-    document.getElementById('evalPosisi').value = kandidatTerpilih.posisi || 'Account Officer (AO) / Staff Lapangan';
-    // Biarkan kosong, user wajib isi manual sesuai tanggal absen
-    document.getElementById('evalTgl').value = '';
-    
-    const radiosHari = document.getElementsByName('evalHariKe');
-    for (let i = 0; i < radiosHari.length; i++) {
-      // 1. Matikan semua centang dulu
-      radiosHari[i].checked = false; 
-      
-      // 2. Nyalakan centang HANYA jika hari ini dia sudah absen
-      if (kandidatTerpilih.hHariIni === 'H1' && radiosHari[i].value === 'Hari Pertama') {
-        radiosHari[i].checked = true;
-      }
-      if (kandidatTerpilih.hHariIni === 'H2' && radiosHari[i].value === 'Hari Kedua') {
-        radiosHari[i].checked = true;
-      }
-      if (kandidatTerpilih.hHariIni === 'H3' && radiosHari[i].value === 'Hari Ketiga') {
-        radiosHari[i].checked = true;
-      }
-    }
-    
-    document.getElementById('evalNamaMentor').value = '';
-    document.getElementById('evalNoMentor').value = '';
-    document.getElementById('evalDipelajari').value = '';
-    document.getElementById('evalKesan').value = '';
-    document.getElementById('evalSaran').value = '';
-    document.getElementById('evalJamPulang').value = '';
-    document.getElementById('modalEvalError').classList.add('hidden');
-    
-    // Poin 6: Load Auto-Save Draft — desain C
+
+    // ─── CEK DRAFT & JAM (terpadu) ───
+    const currentHour = new Date().getHours();
     const draftKey = 'eval_draft_' + kandidatTerpilih.waNorm;
     const draftStr = localStorage.getItem(draftKey);
-    if (draftStr) {
-      try {
-        const d = JSON.parse(draftStr);
-        const draftDate = d.savedAt ? new Date(d.savedAt) : null;
-        const draftDateValid = draftDate && !isNaN(draftDate.getTime());
 
-        const labelDraft = draftDateValid
-          ? draftDate.toLocaleString('id-ID', {
+    let lanjutBuka = true;
+    let hapusDraft = false;
+
+    if (currentHour < 15) {
+      // ── Pola A: < 15:00 (warning jam + pilihan) ──
+      let pesan = '⚠️ EVALUASI HARI INI BELUM BISA DIKIRIM\n\n' +
+                  'Evaluasi hari ini baru bisa dikirim setelah jam 15:00 WIB.\n';
+
+      if (draftStr) {
+        let labelDraft = 'waktu tidak diketahui';
+        try {
+          const d = JSON.parse(draftStr);
+          const draftDate = d.savedAt ? new Date(d.savedAt) : null;
+          if (draftDate && !isNaN(draftDate.getTime())) {
+            labelDraft = draftDate.toLocaleString('id-ID', {
               weekday: 'short', day: 'numeric', month: 'short',
               hour: '2-digit', minute: '2-digit', hour12: false
-            }).replace(/,/g, ' ·')
-          : 'waktu tidak diketahui';
+            }).replace(/,/g, ' ·');
+          }
+        } catch (e) { /* skip */ }
 
-        const bukanHariIni = draftDateValid &&
-          draftDate.toDateString() !== new Date().toDateString();
+        pesan += '\n📝 Ditemukan isian sebelumnya dari [' + labelDraft + '].\n\n' +
+                 'Kalau ini evaluasi tertunda (kemarin), silakan lanjutkan.\n\n' +
+                 'OK = Lanjutkan Isi\nCancel = Batal (draft tetap tersimpan)';
+        lanjutBuka = confirm(pesan);
+        // hapusDraft = false → draft tetap tersimpan meski Batal
+      } else {
+        pesan += '\nKalau ini evaluasi tertunda (kemarin), silakan lanjutkan mengisi.\n\n' +
+                 'OK = Lanjutkan Isi\nCancel = Batal';
+        lanjutBuka = confirm(pesan);
+      }
+
+      if (!lanjutBuka) return; // user pilih Batal, form tidak dibuka
+
+    } else {
+      // ── Pola B: >= 15:00 (hanya kalau ada draft) ──
+      if (draftStr) {
+        let labelDraft = 'waktu tidak diketahui';
+        let bukanHariIni = false;
+
+        try {
+          const d = JSON.parse(draftStr);
+          const draftDate = d.savedAt ? new Date(d.savedAt) : null;
+          if (draftDate && !isNaN(draftDate.getTime())) {
+            labelDraft = draftDate.toLocaleString('id-ID', {
+              weekday: 'short', day: 'numeric', month: 'short',
+              hour: '2-digit', minute: '2-digit', hour12: false
+            }).replace(/,/g, ' ·');
+            bukanHariIni = draftDate.toDateString() !== new Date().toDateString();
+          }
+        } catch (e) { /* skip */ }
 
         const warningDraft = bukanHariIni
           ? '\n\n⚠️ Isian ini dari hari sebelumnya (' + labelDraft + ').'
@@ -988,26 +1038,70 @@
         );
 
         if (!lanjut) {
-          localStorage.removeItem(draftKey);
-        } else {
-          if (d.tglTL) document.getElementById('evalTgl').value = d.tglTL;
-          if (d.namaMentor) document.getElementById('evalNamaMentor').value = d.namaMentor;
-          if (d.noMentor) document.getElementById('evalNoMentor').value = d.noMentor;
-          if (d.dipelajari) document.getElementById('evalDipelajari').value = d.dipelajari;
-          if (d.kesan) document.getElementById('evalKesan').value = d.kesan;
-          if (d.jamPulang) document.getElementById('evalJamPulang').value = d.jamPulang;
-          if (d.saran) document.getElementById('evalSaran').value = d.saran;
-
-          if (d.hariKe) { const r = document.querySelector(`input[name="evalHariKe"][value="${d.hariKe}"]`); if (r) r.checked = true; }
-          if (d.yakin) { const r = document.querySelector(`input[name="evalYakin"][value="${d.yakin}"]`); if (r) r.checked = true; }
-          if (d.ortu) { const r = document.querySelector(`input[name="evalOrtu"][value="${d.ortu}"]`); if (r) r.checked = true; }
-          if (d.ikut) { const r = document.querySelector(`input[name="evalIkut"][value="${d.ikut}"]`); if (r) r.checked = true; }
+          hapusDraft = true; // user pilih Mulai Baru
         }
+      }
+      // lanjutBuka tetap true
+    }
+
+    // ─── ISI FORM (field read-only & default) ───
+    let lokasiLengkap = kandidatTerpilih.unitTL || '-';
+    if (kandidatTerpilih.area && lokasiLengkap.indexOf('|') === -1) {
+      let namaArea = kandidatTerpilih.area;
+      if (!namaArea.toLowerCase().startsWith('area ')) {
+        namaArea = 'Area ' + namaArea;
+      }
+      lokasiLengkap = namaArea + ' | ' + lokasiLengkap;
+    }
+    document.getElementById('evalLokasi').value = lokasiLengkap;
+    document.getElementById('evalPosisi').value = kandidatTerpilih.posisi || 'Account Officer (AO) / Staff Lapangan';
+    document.getElementById('evalTgl').value = '';
+
+    const radiosHari = document.getElementsByName('evalHariKe');
+    for (let i = 0; i < radiosHari.length; i++) {
+      radiosHari[i].checked = false;
+      if (kandidatTerpilih.hHariIni === 'H1' && radiosHari[i].value === 'Hari Pertama') {
+        radiosHari[i].checked = true;
+      }
+      if (kandidatTerpilih.hHariIni === 'H2' && radiosHari[i].value === 'Hari Kedua') {
+        radiosHari[i].checked = true;
+      }
+      if (kandidatTerpilih.hHariIni === 'H3' && radiosHari[i].value === 'Hari Ketiga') {
+        radiosHari[i].checked = true;
+      }
+    }
+
+    document.getElementById('evalNamaMentor').value = '';
+    document.getElementById('evalNoMentor').value = '';
+    document.getElementById('evalDipelajari').value = '';
+    document.getElementById('evalKesan').value = '';
+    document.getElementById('evalSaran').value = '';
+    document.getElementById('evalJamPulang').value = '';
+    document.getElementById('modalEvalError').classList.add('hidden');
+
+    // ─── RESTORE DRAFT (kalau ada & lanjutBuka) ───
+    if (hapusDraft) {
+      localStorage.removeItem(draftKey);
+    } else if (draftStr) {
+      try {
+        const d = JSON.parse(draftStr);
+        if (d.tglTL) document.getElementById('evalTgl').value = d.tglTL;
+        if (d.namaMentor) document.getElementById('evalNamaMentor').value = d.namaMentor;
+        if (d.noMentor) document.getElementById('evalNoMentor').value = d.noMentor;
+        if (d.dipelajari) document.getElementById('evalDipelajari').value = d.dipelajari;
+        if (d.kesan) document.getElementById('evalKesan').value = d.kesan;
+        if (d.jamPulang) document.getElementById('evalJamPulang').value = d.jamPulang;
+        if (d.saran) document.getElementById('evalSaran').value = d.saran;
+
+        if (d.hariKe) { const r = document.querySelector(`input[name="evalHariKe"][value="${d.hariKe}"]`); if (r) r.checked = true; }
+        if (d.yakin) { const r = document.querySelector(`input[name="evalYakin"][value="${d.yakin}"]`); if (r) r.checked = true; }
+        if (d.ortu) { const r = document.querySelector(`input[name="evalOrtu"][value="${d.ortu}"]`); if (r) r.checked = true; }
+        if (d.ikut) { const r = document.querySelector(`input[name="evalIkut"][value="${d.ikut}"]`); if (r) r.checked = true; }
       } catch (e) {
         localStorage.removeItem(draftKey);
       }
     }
-    
+
     const btn = document.getElementById('btnSubmitEval');
     btn.disabled = false;
     btn.textContent = '✓ Kirim Evaluasi';
